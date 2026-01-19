@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.rule.mapper.RuleDuplicateMapper">
+    <resultMap type="com.iwei.rule.entity.RuleDuplicate" id="RuleDuplicate">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="ruleName" column="rule_name" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="agentUrl" column="agent_url" jdbcType="VARCHAR"/>
+        <result property="agentToken" column="agent_token" jdbcType="VARCHAR"/>
+        <result property="agentId" column="agent_id" jdbcType="VARCHAR"/>
+        <result property="agentVersion" column="agent_version" jdbcType="VARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result property="delFlg" column="del_flg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, rule_name, content, agent_url, agent_token, agent_id, agent_version, created_by, created_at, updated_by, updated_at, del_flg
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rule_duplicate (
+            rule_name, content, agent_url, agent_token, agent_id, agent_version, created_by, created_at, updated_by, updated_at, del_flg
+        ) VALUES (
+            #{ruleName}, #{content}, #{agentUrl}, #{agentToken}, #{agentId}, #{agentVersion}, #{createdBy}, #{createdAt}, #{updatedBy}, #{updatedAt}, 0
+        )
+    </insert>
+
+    <update id="updateById">
+        update rule_duplicate
+        <set>
+            <if test="ruleName != null and ruleName != ''">
+                rule_name = #{ruleName},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="agentUrl != null and agentUrl != ''">
+                agent_url = #{agentUrl},
+            </if>
+            <if test="agentToken != null and agentToken != ''">
+                agent_token = #{agentToken},
+            </if>
+            <if test="agentId != null and agentId != ''">
+                agent_id = #{agentId},
+            </if>
+            <if test="agentVersion != null and agentVersion != ''">
+                agent_version = #{agentVersion},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="countByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM rule_duplicate
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="ruleName != null and ruleName != ''">
+                AND rule_name LIKE CONCAT('%', #{ruleName}, '%')
+            </if>
+            <if test="content != null and content != ''">
+                AND content LIKE CONCAT('%', #{content}, '%')
+            </if>
+            <if test="agentUrl != null and agentUrl != ''">
+                AND agent_url LIKE CONCAT('%', #{agentUrl}, '%')
+            </if>
+            <if test="agentToken != null and agentToken != ''">
+                AND agent_token LIKE CONCAT('%', #{agentToken}, '%')
+            </if>
+            <if test="agentId != null and agentId != ''">
+                AND agent_id LIKE CONCAT('%', #{agentId}, '%')
+            </if>
+            <if test="agentVersion != null and agentVersion != ''">
+                AND agent_version LIKE CONCAT('%', #{agentVersion}, '%')
+            </if>
+            <if test="createdBy != null">
+                AND created_by = #{createdBy}
+            </if>
+            <if test="createdAt != null">
+                AND created_at = #{createdAt}
+            </if>
+            <if test="updatedBy != null">
+                AND updated_by = #{updatedBy}
+            </if>
+            <if test="updatedAt != null">
+                AND updated_at = #{updatedAt}
+            </if>
+            <if test="delFlg != null">
+                AND del_flg = #{delFlg}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryById" resultMap="RuleDuplicate">
+        SELECT
+        id, rule_name, content, agent_url, agent_token, agent_id, agent_version, created_by, created_at, updated_by, updated_at
+        FROM rule_duplicate
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="queryPageByCondition" resultMap="RuleDuplicate">
+        SELECT
+        id, rule_name, content, agent_url, agent_token, agent_id, agent_version, created_by, created_at, updated_by, updated_at
+        FROM rule_duplicate
+        <where>
+            <if test="ruleDuplicate.id != null">
+                AND id = #{ruleDuplicate.id}
+            </if>
+            <if test="ruleDuplicate.ruleName != null and ruleDuplicate.ruleName != ''">
+                AND rule_name LIKE CONCAT('%', #{ruleDuplicate.ruleName}, '%')
+            </if>
+            <if test="ruleDuplicate.content != null and ruleDuplicate.content != ''">
+                AND content LIKE CONCAT('%', #{ruleDuplicate.content}, '%')
+            </if>
+            <if test="ruleDuplicate.agentUrl != null and ruleDuplicate.agentUrl != ''">
+                AND agent_url LIKE CONCAT('%', #{ruleDuplicate.agentUrl}, '%')
+            </if>
+            <if test="ruleDuplicate.agentToken != null and ruleDuplicate.agentToken != ''">
+                AND agent_token LIKE CONCAT('%', #{ruleDuplicate.agentToken}, '%')
+            </if>
+            <if test="ruleDuplicate.agentId != null and ruleDuplicate.agentId != ''">
+                AND agent_id LIKE CONCAT('%', #{ruleDuplicate.agentId}, '%')
+            </if>
+            <if test="ruleDuplicate.agentVersion != null and ruleDuplicate.agentVersion != ''">
+                AND agent_version LIKE CONCAT('%', #{ruleDuplicate.agentVersion}, '%')
+            </if>
+            <if test="ruleDuplicate.createdBy != null">
+                AND created_by = #{ruleDuplicate.createdBy}
+            </if>
+            <if test="ruleDuplicate.createdAt != null">
+                AND created_at = #{ruleDuplicate.createdAt}
+            </if>
+            <if test="ruleDuplicate.updatedBy != null">
+                AND updated_by = #{ruleDuplicate.updatedBy}
+            </if>
+            <if test="ruleDuplicate.updatedAt != null">
+                AND updated_at = #{ruleDuplicate.updatedAt}
+            </if>
+            <if test="ruleDuplicate.delFlg != null">
+                AND del_flg = #{ruleDuplicate.delFlg}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="queryIdAndName" resultMap="RuleDuplicate">
+        SELECT id, rule_name, agent_id, agent_version
+        FROM rule_duplicate
+        WHERE del_flg = 0
+    </select>
+</mapper>

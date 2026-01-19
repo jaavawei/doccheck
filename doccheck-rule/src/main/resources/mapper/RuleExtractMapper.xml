@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.rule.mapper.RuleExtractMapper">
+
+    <resultMap type="com.iwei.rule.entity.RuleExtract" id="RuleExtract">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="ruleName" column="rule_name" jdbcType="VARCHAR"/>
+        <result property="elements" column="elements" jdbcType="VARCHAR"/>
+        <result property="prompt" column="prompt" jdbcType="LONGVARCHAR"/>
+        <result property="agentUrl" column="agent_url" jdbcType="VARCHAR"/>
+        <result property="bucket" column="bucket" jdbcType="VARCHAR"/>
+        <result property="agentToken" column="agent_token" jdbcType="VARCHAR"/>
+        <result property="agentId" column="agent_id" jdbcType="VARCHAR"/>
+        <result property="agentVersion" column="agent_version" jdbcType="VARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result property="delFlg" column="del_flg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, rule_name, elements, agent_url, bucket, agent_token, agent_id, agent_version, prompt, created_by,
+        created_at, updated_by, updated_at, del_flg
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rule_extract (
+            rule_name, elements, agent_url, bucket, agent_token, agent_id, agent_version, prompt, created_by,
+            created_at, updated_by, updated_at, del_flg
+        ) VALUES (
+                     #{ruleName}, #{elements}, #{agentUrl}, #{bucket}, #{agentToken}, #{agentId}, #{agentVersion}, #{prompt}, #{createdBy},
+                     #{createdAt}, #{updatedBy}, #{updatedAt}, #{delFlg}
+                 )
+    </insert>
+
+    <update id="updateById">
+        update rule_extract
+        <set>
+            <if test="ruleName != null and ruleName != ''">
+                rule_name = #{ruleName},
+            </if>
+            <if test="elements != null and elements != ''">
+                elements = #{elements},
+            </if>
+            <if test="agentUrl != null and agentUrl != ''">
+                agent_url = #{agentUrl},
+            </if>
+            <if test="bucket != null and bucket != ''">
+                bucket = #{bucket},
+            </if>
+            <if test="agentToken != null and agentToken != ''">
+                agent_token = #{agentToken},
+            </if>
+            <if test="agentId != null and agentId != ''">
+                agent_id = #{agentId},
+            </if>
+            <if test="agentVersion != null and agentVersion != ''">
+                agent_version = #{agentVersion},
+            </if>
+            <if test="prompt != null and prompt != ''">
+                prompt = #{prompt},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="countByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM rule_extract
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="ruleName != null and ruleName != ''">
+                AND rule_name LIKE CONCAT('%', #{ruleName}, '%')
+            </if>
+            <if test="elements != null and elements != ''">
+                AND elements LIKE CONCAT('%', #{elements}, '%')
+            </if>
+            <if test="agentUrl != null and agentUrl != ''">
+                AND agent_url LIKE CONCAT('%', #{agentUrl}, '%')
+            </if>
+            <if test="bucket != null and bucket != ''">
+                AND bucket LIKE CONCAT('%', #{bucket}, '%')
+            </if>
+            <if test="agentToken != null and agentToken != ''">
+                AND agent_token LIKE CONCAT('%', #{agentToken}, '%')
+            </if>
+            <if test="agentId != null and agentId != ''">
+                AND agent_id LIKE CONCAT('%', #{agentId}, '%')
+            </if>
+            <if test="agentVersion != null and agentVersion != ''">
+                AND agent_version LIKE CONCAT('%', #{agentVersion}, '%')
+            </if>
+            <if test="prompt != null and prompt != ''">
+                AND prompt LIKE CONCAT('%', #{prompt}, '%')
+            </if>
+            <if test="createdBy != null">
+                AND created_by = #{createdBy}
+            </if>
+            <if test="createdAt != null">
+                AND created_at = #{createdAt}
+            </if>
+            <if test="updatedBy != null">
+                AND updated_by = #{updatedBy}
+            </if>
+            <if test="updatedAt != null">
+                AND updated_at = #{updatedAt}
+            </if>
+            <if test="delFlg != null">
+                AND del_flg = #{delFlg}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryPageByCondition" resultMap="RuleExtract">
+        SELECT
+        id, rule_name, elements, agent_url, bucket, agent_token, agent_id, agent_version, prompt,
+        created_by, created_at, updated_by, updated_at
+        FROM rule_extract
+        <where>
+            <if test="ruleExtract.id != null">
+                AND id = #{ruleExtract.id}
+            </if>
+            <if test="ruleExtract.ruleName != null and ruleExtract.ruleName != ''">
+                AND rule_name LIKE CONCAT('%', #{ruleExtract.ruleName}, '%')
+            </if>
+            <if test="ruleExtract.elements != null and ruleExtract.elements != ''">
+                AND elements LIKE CONCAT('%', #{ruleExtract.elements}, '%')
+            </if>
+            <if test="ruleExtract.agentUrl != null and ruleExtract.agentUrl != ''">
+                AND agent_url LIKE CONCAT('%', #{ruleExtract.agentUrl}, '%')
+            </if>
+            <if test="ruleExtract.bucket != null and ruleExtract.bucket != ''">
+                AND bucket LIKE CONCAT('%', #{ruleExtract.bucket}, '%')
+            </if>
+            <if test="ruleExtract.agentToken != null and ruleExtract.agentToken != ''">
+                AND agent_token LIKE CONCAT('%', #{ruleExtract.agentToken}, '%')
+            </if>
+            <if test="ruleExtract.agentId != null and ruleExtract.agentId != ''">
+                AND agent_id LIKE CONCAT('%', #{ruleExtract.agentId}, '%')
+            </if>
+            <if test="ruleExtract.agentVersion != null and ruleExtract.agentVersion != ''">
+                AND agent_version LIKE CONCAT('%', #{ruleExtract.agentVersion}, '%')
+            </if>
+            <if test="ruleExtract.prompt != null and ruleExtract.prompt != ''">
+                AND prompt LIKE CONCAT('%', #{ruleExtract.prompt}, '%')
+            </if>
+            <if test="ruleExtract.createdBy != null">
+                AND created_by = #{ruleExtract.createdBy}
+            </if>
+            <if test="ruleExtract.createdAt != null">
+                AND created_at = #{ruleExtract.createdAt}
+            </if>
+            <if test="ruleExtract.updatedBy != null">
+                AND updated_by = #{ruleExtract.updatedBy}
+            </if>
+            <if test="ruleExtract.updatedAt != null">
+                AND updated_at = #{ruleExtract.updatedAt}
+            </if>
+            <if test="ruleExtract.delFlg != null">
+                AND del_flg = #{ruleExtract.delFlg}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="queryById" resultMap="RuleExtract">
+        SELECT
+            id, rule_name, elements, agent_url, bucket, agent_token, agent_id, agent_version, prompt,
+            created_by, created_at, updated_by, updated_at
+        FROM rule_extract
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="queryAllRuleIdAndName" resultMap="RuleExtract">
+        SELECT
+            id, rule_name, agent_id, agent_version
+        FROM rule_extract
+        WHERE del_flg = 0
+    </select>
+
+</mapper>

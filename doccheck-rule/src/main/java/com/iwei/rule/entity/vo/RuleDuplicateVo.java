@@ -1,0 +1,51 @@
+package com.iwei.rule.entity.vo;
+
+import lombok.Data;
+
+import java.util.Date;
+
+/**
+ * 查重规则表 Vo
+ *
+ * @auther: zhaokangwei
+ */
+@Data
+public class RuleDuplicateVo {
+
+    /** 主键自增id */
+    private Integer id;
+
+    /** 查重规则名称 */
+    private String ruleName;
+
+    /** 查重规则内容 */
+    private String content;
+
+    /** 智能体api */
+    private String agentUrl;
+
+    /** 智能体token */
+    private String agentToken;
+
+    /** 智能体Id */
+    private String agentId;
+
+    /** 智能体版本 */
+    private String agentVersion;
+
+    /** 创建人 */
+    private Integer createdBy;
+
+    /** 创建时间 */
+    private Date createdAt;
+
+    /** 更新人 */
+    private Integer updatedBy;
+
+    /** 更新时间 */
+    private Date updatedAt;
+
+    /** 删除标识 */
+    private Integer delFlg;
+
+}

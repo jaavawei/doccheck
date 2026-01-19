@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.rule.mapper.RuleReviewMapper">
+
+    <resultMap id="RuleReview" type="com.iwei.rule.entity.RuleReview">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="rule_name" property="ruleName" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="agent_url" property="agentUrl" jdbcType="VARCHAR"/>
+        <result column="agent_token" property="agentToken" jdbcType="VARCHAR"/>
+        <result column="agent_id" property="agentId" jdbcType="VARCHAR"/>
+        <result column="agent_version" property="agentVersion" jdbcType="VARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result column="del_flg" property="delFlg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, rule_name, content, agent_url, agent_token, agent_id, agent_version, created_by, created_at, updated_by, updated_at, del_flg
+    </sql>
+
+    <select id="queryById" resultMap="RuleReview">
+        SELECT <include refid="baseColumnList"/>
+        FROM rule_review
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="selectList" resultMap="RuleReview">
+        SELECT <include refid="baseColumnList"/>
+        FROM rule_review
+        WHERE del_flg = 0
+        <if test="ruleName != null and ruleName != ''">
+            AND rule_name LIKE CONCAT('%', #{ruleName}, '%')
+        </if>
+    </select>
+
+    <select id="queryPageByCondition" resultMap="RuleReview">
+        SELECT
+        <include refid="baseColumnList"/>
+        FROM rule_review
+        <where>
+            <if test="ruleReviewVo.id != null">
+                AND id = #{ruleReviewVo.id}
+            </if>
+            <if test="ruleReviewVo.ruleName != null and ruleReviewVo.ruleName != ''">
+                AND rule_name LIKE CONCAT('%', #{ruleReviewVo.ruleName}, '%')
+            </if>
+            <if test="ruleReviewVo.content != null and ruleReviewVo.content != ''">
+                AND content LIKE CONCAT('%', #{ruleReviewVo.content}, '%')
+            </if>
+            <if test="ruleReviewVo.agentUrl != null and ruleReviewVo.agentUrl != ''">
+                AND agent_url LIKE CONCAT('%', #{ruleReviewVo.agentUrl}, '%')
+            </if>
+            <if test="ruleReviewVo.agentToken != null and ruleReviewVo.agentToken != ''">
+                AND agent_token LIKE CONCAT('%', #{ruleReviewVo.agentToken}, '%')
+            </if>
+            <if test="ruleReviewVo.agentId != null and ruleReviewVo.agentId != ''">
+                AND agent_id LIKE CONCAT('%', #{ruleReviewVo.agentId}, '%')
+            </if>
+            <if test="ruleReviewVo.agentVersion != null and ruleReviewVo.agentVersion != ''">
+                AND agent_version LIKE CONCAT('%', #{ruleReviewVo.agentVersion}, '%')
+            </if>
+            <if test="ruleReviewVo.createdBy != null">
+                AND created_by = #{ruleReviewVo.createdBy}
+            </if>
+            <if test="ruleReviewVo.createdAt != null">
+                AND created_at = #{ruleReviewVo.createdAt}
+            </if>
+            <if test="ruleReviewVo.updatedBy != null">
+                AND updated_by = #{ruleReviewVo.updatedBy}
+            </if>
+            <if test="ruleReviewVo.updatedAt != null">
+                AND updated_at = #{ruleReviewVo.updatedAt}
+            </if>
+            <if test="ruleReviewVo.delFlg != null">
+                AND del_flg = #{ruleReviewVo.delFlg}
+            </if>
+        </where>
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM rule_review
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="ruleName != null and ruleName != ''">
+                AND rule_name LIKE CONCAT('%', #{ruleName}, '%')
+            </if>
+            <if test="content != null and content != ''">
+                AND content LIKE CONCAT('%', #{content}, '%')
+            </if>
+            <if test="agentUrl != null and agentUrl != ''">
+                AND agent_url LIKE CONCAT('%', #{agentUrl}, '%')
+            </if>
+            <if test="agentToken != null and agentToken != ''">
+                AND agent_token LIKE CONCAT('%', #{agentToken}, '%')
+            </if>
+            <if test="agentId != null and agentId != ''">
+                AND agent_id LIKE CONCAT('%', #{agentId}, '%')
+            </if>
+            <if test="agentVersion != null and agentVersion != ''">
+                AND agent_version LIKE CONCAT('%', #{agentVersion}, '%')
+            </if>
+            <if test="createdBy != null">
+                AND created_by = #{createdBy}
+            </if>
+            <if test="createdAt != null">
+                AND created_at = #{createdAt}
+            </if>
+            <if test="updatedBy != null">
+                AND updated_by = #{updatedBy}
+            </if>
+            <if test="updatedAt != null">
+                AND updated_at = #{updatedAt}
+            </if>
+            <if test="delFlg != null">
+                AND del_flg = #{delFlg}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryByTaskReviewId" resultType="com.iwei.rule.entity.RuleReview">
+        SELECT rule.id, rule.rule_name, rule.content, rule.agent_url, rule.agent_token, rule.agent_id, rule.agent_version
+        FROM rule_review rule
+        INNER JOIN task_review_rule_mapping map ON rule.id = map.rule_review_id
+        WHERE map.task_review_id = #{taskReviewId}
+        AND rule.del_flg = 0
+        AND map.del_flg = 0
+    </select>
+
+    <select id="queryIdAndName" resultType="com.iwei.rule.entity.RuleReview">
+        SELECT id, rule_name, agent_id, agent_version
+        FROM rule_review
+        WHERE del_flg = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rule_review (
+            rule_name, content, agent_url, agent_token, agent_id, agent_version, created_by, created_at, updated_by, updated_at, del_flg
+        ) VALUES (
+                     #{ruleName}, #{content}, #{agentUrl}, #{agentToken}, #{agentId}, #{agentVersion}, #{createdBy}, #{createdAt}, #{updatedBy}, #{updatedAt}, #{delFlg}
+                 )
+    </insert>
+
+    <update id="updateById">
+        UPDATE rule_review
+        <set>
+            <if test="ruleName != null and ruleName != ''">
+                rule_name = #{ruleName},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="agentUrl != null and agentUrl != ''">
+                agent_url = #{agentUrl},
+            </if>
+            <if test="agentToken != null and agentToken != ''">
+                agent_token = #{agentToken},
+            </if>
+            <if test="agentId != null and agentId != ''">
+                agent_id = #{agentId},
+            </if>
+            <if test="agentVersion != null and agentVersion != ''">
+                agent_version = #{agentVersion},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE rule_review SET del_flg = 1 WHERE id = #{id}
+    </update>
+</mapper>
