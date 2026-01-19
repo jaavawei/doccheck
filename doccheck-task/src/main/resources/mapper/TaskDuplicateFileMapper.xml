@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.task.mapper.TaskDuplicateFileMapper">
+
+    <resultMap id="TaskDuplicateFile" type="com.iwei.task.entity.TaskDuplicateFile">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="info_id" property="infoId" jdbcType="INTEGER"/>
+        <result column="file_type" property="fileType" jdbcType="VARCHAR"/>
+        <result column="doc_url" property="docUrl" jdbcType="VARCHAR"/>
+        <result column="file_status" property="fileStatus" jdbcType="INTEGER"/>
+        <result column="task_doc_num" property="taskDocNum" jdbcType="INTEGER"/>
+        <result column="error_msg" property="errorMsg" jdbcType="VARCHAR"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_by" property="updatedBy" jdbcType="INTEGER"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="INTEGER"/>
+        <result column="del_flg" property="delFlg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.iwei.task.entity.TaskDuplicateFile">
+        INSERT INTO task_duplicate_file (
+            info_id,
+            file_type,
+            doc_url,
+            file_status,
+            task_doc_num,
+            error_msg,
+            created_at,
+            created_by,
+            updated_at,
+            updated_by,
+            del_flg
+        ) VALUES (
+                     #{infoId},
+                     #{fileType},
+                     #{docUrl},
+                     #{fileStatus},
+                     #{taskDocNum},
+                     #{errorMsg},
+                     #{createdAt},
+                     #{createdBy},
+                     #{updatedAt},
+                     #{updatedBy},
+                     #{delFlg}
+                 )
+    </insert>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_duplicate_file (
+        info_id,
+        file_type,
+        doc_url,
+        file_status,
+        task_doc_num,
+        error_msg,
+        created_at,
+        created_by,
+        updated_at,
+        updated_by,
+        del_flg
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.infoId},
+            #{item.fileType},
+            #{item.docUrl},
+            #{item.fileStatus},
+            #{item.taskDocNum},
+            #{item.errorMsg},
+            #{item.createdAt},
+            #{item.createdBy},
+            #{item.updatedAt},
+            #{item.updatedBy},
+            #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <select id="queryById" resultType="com.iwei.task.entity.TaskDuplicateFile">
+        SELECT id, info_id, file_type, doc_url, file_status, task_doc_num,
+               error_msg, created_at, created_by, updated_at, updated_by, del_flg
+        FROM task_duplicate_file
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="queryUrlByDocId">
+        SELECT file.doc_url
+        FROM task_duplicate_file file
+        INNER JOIN task_duplicate_doc doc
+        ON doc.file_id = file.id
+        WHERE doc.id = #{docId} AND doc.del_flg = 0 AND file.del_flg = 0;
+    </select>
+
+</mapper>

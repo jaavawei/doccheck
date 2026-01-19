@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.task.mapper.ScheduleReviewMapper">
+
+    <resultMap type="com.iwei.task.entity.ScheduleReview" id="ScheduleReview">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="review_id" property="reviewId" jdbcType="INTEGER"/>
+        <result column="task_status" property="taskStatus" jdbcType="INTEGER"/>
+        <result column="error_msg" property="errorMsg" jdbcType="LONGVARCHAR"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="INTEGER"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_by" property="updatedBy" jdbcType="INTEGER"/>
+        <result column="del_flg" property="delFlg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, review_id, task_status, error_msg,
+        created_at, created_by, updated_at, updated_by, del_flg
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule_review (
+            review_id, task_status, error_msg,
+            created_at, created_by, updated_at, updated_by, del_flg
+        )
+        VALUES (
+            #{reviewId}, #{taskStatus}, #{errorMsg},
+            #{createdAt}, #{createdBy}, #{updatedAt}, #{updatedBy}, #{delFlg}
+        )
+    </insert>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule_review (
+            review_id, task_status, error_msg,
+            created_at, created_by, updated_at, updated_by, del_flg
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.reviewId},
+                #{item.taskStatus},
+                #{item.errorMsg},
+                #{item.createdAt},
+                #{item.createdBy},
+                #{item.updatedAt},
+                #{item.updatedBy},
+                #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <update id="update">
+        UPDATE schedule_review
+        <set>
+            <if test="reviewId != null">
+                review_id = #{reviewId},
+            </if>
+            <if test="taskStatus != null">
+                task_status = #{taskStatus},
+            </if>
+            <if test="errorMsg != null">
+                error_msg = #{errorMsg},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateByReviewId">
+        UPDATE schedule_review
+        <set>
+            <if test="taskStatus != null">
+                task_status = #{taskStatus},
+            </if>
+            <if test="errorMsg != null">
+                error_msg = #{errorMsg},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        WHERE review_id = #{reviewId}
+    </update>
+
+    <select id="getPendingTasks" resultMap="ScheduleReview">
+        SELECT
+        <include refid="baseColumnList"/>
+        FROM schedule_review
+        WHERE
+            task_status = 0
+        AND
+            del_flg = 0
+        ORDER BY created_at ASC
+        LIMIT #{batchSize} OFFSET 0
+    </select>
+
+    <select id="queryReviewStatusByReviewId" resultType="java.lang.Integer">
+        SELECT task_status
+        FROM schedule_review
+        WHERE
+            review_id = #{reviewId}
+        AND
+            del_flg = 0
+    </select>
+
+    <select id="queryById" resultType="com.iwei.task.entity.ScheduleReview">
+        SELECT
+        <include refid="baseColumnList"/>
+        FROM schedule_review
+        WHERE
+            id = #{id}
+        AND
+            del_flg = 0
+    </select>
+
+</mapper>

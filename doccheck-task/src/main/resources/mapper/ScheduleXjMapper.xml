@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iwei.task.mapper.ScheduleXjMapper">
+
+    <resultMap id="scheduleXjResultMap" type="com.iwei.task.entity.ScheduleXj">
+        <id property="id" column="id"/>
+        <result property="sourceId" column="source_id"/>
+        <result property="docFId" column="doc_f_id"/>
+        <result property="docSId" column="doc_s_id"/>
+        <result property="taskStatus" column="task_status"/>
+        <result property="stationLineName" column="station_line_name"/>
+        <result property="duplicateFlg" column="duplicate_flg"/>
+        <result property="duplicateMsg" column="duplicate_msg"/>
+        <result property="errorMsg" column="error_msg"/>
+        <result property="advice" column="advice"/>
+        <result property="delFlg" column="del_flg"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="scheduleXjResultMap">
+        SELECT * FROM schedule_xj WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="scheduleXjResultMap">
+        SELECT * FROM schedule_xj
+    </select>
+
+    <select id="getPendingTasks" resultMap="scheduleXjResultMap">
+        SELECT * FROM schedule_xj WHERE task_status = 0 AND del_flg = 0 LIMIT #{batchSize} OFFSET 0
+    </select>
+
+    <select id="queryDistinctTaskStatus" resultType="java.lang.Integer">
+        SELECT DISTINCT task_status FROM schedule_xj WHERE source_id = #{sourceId} AND del_flg = 0
+    </select>
+
+    <select id="countBySourceId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM schedule_xj WHERE source_id = #{sourceId} AND del_flg = 0
+    </select>
+
+    <select id="countDuplicateBySourceId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM schedule_xj WHERE source_id = #{sourceId} AND del_flg = 0 AND duplicate_flg = 1
+    </select>
+
+    <select id="countDuplicateMsgBySourceId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM schedule_xj WHERE source_id = #{sourceId} AND del_flg = 0 AND duplicate_flg = 1 AND duplicate_msg like CONCAT('%', #{duplicateMsg}, '%')
+    </select>
+    <select id="queryByEitherDocIdAndSourceId" resultType="com.iwei.task.entity.ScheduleXj">
+        SELECT * FROM schedule_xj WHERE (doc_f_id = #{docId} OR doc_s_id = #{docId}) AND source_id = #{sourceId} AND del_flg = 0 ORDER BY duplicate_flg DESC
+    </select>
+
+    <select id="countDuplicateByDocIdAndSourceId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM schedule_xj WHERE (doc_f_id = #{docId} OR doc_s_id = #{docId}) AND source_id = #{sourceId} AND del_flg = 0 AND duplicate_flg = 1
+    </select>
+
+    <select id="queryOrgConditionBySourceId" resultType="java.util.Map">
+        SELECT
+        IFNULL(d.impl_org, '未填写') AS impl_org,
+        CONCAT(ROUND( (COUNT(t.id) / IF(total.total_count = 0, 1, total.total_count)) * 100, 1), '%') AS invalid_ratio
+        FROM
+        task_duplicate_doc t
+        LEFT JOIN
+        repository_doc d ON t.repo_doc_id = d.id
+        CROSS JOIN (
+        SELECT COUNT(*) AS total_count
+        FROM task_duplicate_doc t_total
+        LEFT JOIN repository_doc d_total ON t_total.repo_doc_id = d_total.id
+        WHERE t_total.duplicate_flg = 1
+        AND t_total.del_flg = 0
+        ) AS total
+        WHERE
+        t.duplicate_flg = 1
+        AND t.del_flg = 0
+        GROUP BY
+        d.impl_org, total.total_count
+    </select>
+
+    <select id="countByDocId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM schedule_xj WHERE doc_f_id = #{docId} OR doc_s_id = #{docId} AND del_flg = 0
+    </select>
+
+    <select id="countByDocIdAndStatus" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM schedule_xj WHERE doc_f_id = #{docId} OR doc_s_id = #{docId} AND task_status = #{status} AND del_flg = 0
+    </select>
+
+    <select id="queryAll" resultType="com.iwei.task.entity.ScheduleXj">
+        SELECT * FROM schedule_xj WHERE del_flg = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule_xj (doc_f_id, doc_s_id, task_status, station_line_name, advice, del_flg, source_id, duplicate_flg, duplicate_msg, error_msg)
+        VALUES (#{docFId}, #{docSId}, #{taskStatus}, #{stationLineName}, #{advice}, #{delFlg}, #{sourceId}, #{duplicateFlg}, #{duplicateMsg}, #{errorMsg})
+    </insert>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule_xj (doc_f_id, doc_s_id, task_status, station_line_name, advice, del_flg, source_id, duplicate_flg, duplicate_msg, error_msg) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.docFId}, #{item.docSId}, #{item.taskStatus}, #{item.stationLineName}, #{item.advice}, #{item.delFlg}, #{item.sourceId}, #{item.duplicateFlg}, #{item.duplicateMsg}, #{item.errorMsg})
+        </foreach>
+    </insert>
+
+    <update id="update">
+        UPDATE schedule_xj
+        <set>
+            <if test="docFId != null">doc_f_id = #{docFId},</if>
+            <if test="docSId != null">doc_s_id = #{docSId},</if>
+            <if test="taskStatus != null">task_status = #{taskStatus},</if>
+            <if test="stationLineName != null">station_line_name = #{stationLineName},</if>
+            <if test="advice != null">advice = #{advice},</if>
+            <if test="delFlg != null">del_flg = #{delFlg},</if>
+            <if test="sourceId != null">source_id = #{sourceId},</if>
+            <if test="duplicateFlg != null">duplicate_flg = #{duplicateFlg},</if>
+            <if test="duplicateMsg != null">duplicate_msg = #{duplicateMsg},</if>
+            <if test="errorMsg != null">error_msg = #{errorMsg}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateByInfoId">
+        UPDATE schedule_xj
+        <set>
+            <if test="scheduleXj.taskStatus != null">task_status = #{scheduleXj.taskStatus},</if>
+            <if test="scheduleXj.delFlg != null">del_flg = #{scheduleXj.delFlg},</if>
+        </set>
+        WHERE source_id = #{infoId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM schedule_xj WHERE id = #{id}
+    </delete>
+
+</mapper>

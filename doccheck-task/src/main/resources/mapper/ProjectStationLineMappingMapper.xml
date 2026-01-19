@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iwei.task.mapper.ProjectStationLineMappingMapper">
+
+  <!-- Result Map -->
+  <resultMap id="ProjectStationLineMappingResultMap" type="com.iwei.task.entity.ProjectStationLineMapping">
+    <id property="id" column="id" />
+    <result property="projectName" column="project_name" />
+    <result property="projectCode" column="project_code" />
+    <result property="stationLineName" column="station_line_name" />
+    <result property="stationLineCode" column="station_line_code" />
+    <result property="implOrg" column="impl_org" />
+    <result property="planYear" column="plan_year" />
+    <result property="projectMsg" column="project_msg" />
+    <result property="delFlg" column="del_flg" />
+  </resultMap>
+
+  <insert id="insert" useGeneratedKeys="true">
+    INSERT INTO project_station_line_mapping (
+      project_name, project_code, station_line_name, station_line_code, impl_org, plan_year, project_msg, del_flg
+    ) VALUES (
+      #{projectName}, #{projectCode}, #{stationLineName}, #{stationLineCode}, #{implOrg}, #{planYear}, #{projectMsg}, #{delFlg}
+    )
+  </insert>
+
+  <select id="queryByCondition" parameterType="map" resultMap="ProjectStationLineMappingResultMap">
+    SELECT * FROM project_station_line_mapping
+    <where>
+      <if test="projectName != null">
+        AND project_name = #{projectName}
+      </if>
+      <if test="projectCode != null">
+        AND project_code = #{projectCode}
+      </if>
+      <if test="stationLineName != null">
+        AND station_line_name = #{stationLineName}
+      </if>
+      <if test="stationLineCode != null">
+        AND station_line_code = #{stationLineCode}
+      </if>
+      <if test="implOrg != null">
+        AND impl_org = #{implOrg}
+      </if>
+      <if test="planYear != null">
+        AND plan_year = #{planYear}
+      </if>
+      <if test="project_msg != null">
+        AND project_msg = #{projectMsg}
+      </if>
+      <if test="delFlg != null">
+        AND del_flg = #{delFlg}
+      </if>
+    </where>
+  </select>
+
+  <select id="queryDistinctStationLineName" resultType="java.lang.String">
+      SELECT DISTINCT station_line_name FROM project_station_line_mapping WHERE del_flg = 0
+  </select>
+
+  <select id="queryDocsByStationLineNameAndRepositoryDuplicateId" resultType="com.iwei.repository.entity.RepositoryDoc">
+    SELECT distinct doc.id FROM repository_doc doc
+    INNER JOIN project_station_line_mapping ps ON doc.project_name = ps.project_name
+    INNER JOIN repository_duplicate_doc_mapping dd ON doc.id = dd.repository_doc_id
+    WHERE ps.station_line_name = #{stationLineName} AND dd.repository_duplicate_id = #{repositoryDuplicateId}
+    AND doc.del_flg = 0 AND ps.del_flg = 0
+  </select>
+
+  <select id="queryByDocId" resultType="com.iwei.task.entity.ProjectStationLineMapping">
+    SELECT * FROM project_station_line_mapping ps
+    INNER JOIN repository_doc doc ON doc.project_name = ps.project_name
+    WHERE doc.id = #{docId} AND doc.del_flg = 0 AND ps.del_flg = 0
+  </select>
+
+
+  <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true">
+    INSERT INTO project_station_line_mapping (
+      project_name, project_code, station_line_name, station_line_code, impl_org, plan_year, project_msg, del_flg
+    ) VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.projectName}, #{item.projectCode}, #{item.stationLineName}, #{item.stationLineCode}, #{item.implOrg}, #{item.planYear}, #{item.projectMsg}, #{item.delFlg})
+    </foreach>
+  </insert>
+
+  <update id="update">
+    UPDATE project_station_line_mapping
+    <set>
+      <if test="projectName != null">project_name = #{projectName},</if>
+      <if test="projectCode != null">project_code = #{projectCode},</if>
+      <if test="stationLineName != null">station_line_name = #{stationLineName},</if>
+      <if test="stationLineCode != null">station_line_code = #{stationLineCode},</if>
+      <if test="implOrg != null">impl_org = #{implOrg},</if>
+      <if test="planYear != null">plan_year = #{planYear},</if>
+      <if test="project_msg != null">project_msg = #{projectMsg},</if>
+      <if test="delFlg != null">del_flg = #{delFlg}</if>
+    </set>
+    WHERE id = #{id}
+  </update>
+
+</mapper>

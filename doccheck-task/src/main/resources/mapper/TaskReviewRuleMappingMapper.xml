@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.task.mapper.TaskReviewRuleMappingMapper">
+
+    <resultMap type="com.iwei.task.entity.TaskReviewRuleMapping" id="TaskReviewRuleMapping">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="taskReviewId" column="task_review_id" jdbcType="INTEGER"/>
+        <result property="ruleReviewId" column="rule_review_id" jdbcType="INTEGER"/>
+        <result property="compliantFlg" column="compliant_flg" jdbcType="INTEGER"/>
+        <result property="questionMsg" column="question_msg" jdbcType="LONGNVARCHAR"/>
+        <result property="advice" column="advice" jdbcType="LONGNVARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result property="delFlg" column="del_flg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, task_review_id, rule_review_id, compliant_flg, question_msg, advice,
+        created_by, created_at, updated_by, updated_at, del_flg
+    </sql>
+
+    <select id="selectById" resultMap="TaskReviewRuleMapping">
+        SELECT <include refid="baseColumnList"/>
+        FROM task_review_rule_mapping
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="selectList" resultMap="TaskReviewRuleMapping">
+        SELECT <include refid="baseColumnList"/>
+        FROM task_review_rule_mapping
+        WHERE del_flg = 0
+        <if test="taskReviewId != null">
+            AND task_review_id = #{taskReviewId}
+        </if>
+        <if test="ruleReviewId != null">
+            AND rule_review_id = #{ruleReviewId}
+        </if>
+    </select>
+    
+    <select id="countByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM task_review_rule_mapping
+        <where>
+        <if test="taskReviewId != null">
+            AND task_review_id = #{taskReviewId}
+        </if>
+        <if test="ruleReviewId != null">
+            AND rule_review_id = #{ruleReviewId}
+        </if>
+        <if test="compliantFlg != null">
+            AND compliant_flg = #{compliantFlg}
+        </if>
+        <if test="delFlg != null">
+            AND del_flg = #{delFlg}
+        </if>
+        </where>
+    </select>
+
+    <select id="queryByCondition" resultMap="TaskReviewRuleMapping">
+        SELECT <include refid="baseColumnList"/>
+        FROM task_review_rule_mapping
+        <where>
+            <if test="taskReviewId != null">
+                AND task_review_id = #{taskReviewId}
+            </if>
+            <if test="ruleReviewId != null">
+                AND rule_review_id = #{ruleReviewId}
+            </if>
+            <if test="compliantFlg != null">
+                AND compliant_flg = #{compliantFlg}
+            </if>
+            <if test="questionMsg != null">
+                AND question_msg = #{questionMsg}
+            </if>
+            <if test="advice != null">
+                AND advice = #{advice}
+            </if>
+            <if test="createdBy != null">
+                AND created_by = #{createdBy}
+            </if>
+            <if test="updatedBy != null">
+                AND updated_by = #{updatedBy}
+            </if>
+            <if test="delFlg != null">
+                AND del_flg = #{delFlg}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryUncompliantItemByReviewId">
+        SELECT
+            rule_review_id, question_msg, advice
+        FROM task_review_rule_mapping
+        WHERE task_review_id = #{id} AND del_flg = 0
+        AND compliant_flg = 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_review_rule_mapping (
+            task_review_id, rule_review_id, compliant_flg, question_msg, advice,
+            created_by, created_at, updated_by, updated_at, del_flg
+        ) VALUES (
+                     #{taskReviewId}, #{ruleReviewId}, #{compliantFlg}, #{questionMsg}, #{advice},
+                     #{createdBy}, #{createdAt}, #{updatedBy}, #{updatedAt}, #{delFlg}
+                 )
+    </insert>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_review_rule_mapping (
+        task_review_id, rule_review_id, compliant_flg, question_msg, advice,
+        created_by, created_at, updated_by, updated_at, del_flg
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.taskReviewId}, #{item.ruleReviewId}, #{item.compliantFlg}, #{item.questionMsg}, #{item.advice},
+                #{item.createdBy}, #{item.createdAt},
+                #{item.updatedBy}, #{item.updatedAt}, #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateById">
+        UPDATE task_review_rule_mapping
+        <set>
+            <if test="taskReviewId != null">task_review_id = #{taskReviewId},</if>
+            <if test="ruleReviewId != null">rule_review_id = #{ruleReviewId},</if>
+            <if test="compliantFlg != null">compliant_flg = #{compliantFlg},</if>
+            <if test="questionMsg != null">question_msg = #{questionMsg},</if>
+            <if test="advice != null">advice = #{advice},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+            <if test="delFlg != null">del_flg = #{delFlg},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE task_review_rule_mapping SET del_flg = 1 WHERE id = #{id}
+    </update>
+
+    <update id="updateByReviewId">
+        UPDATE task_review_rule_mapping
+        <set>
+            <if test="ruleReviewId != null">rule_review_id = #{ruleReviewId},</if>
+            <if test="compliantFlg != null">compliant_flg = #{compliantFlg},</if>
+            <if test="questionMsg != null">question_msg = #{questionMsg},</if>
+            <if test="advice != null">advice = #{advice},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+            <if test="delFlg != null">del_flg = #{delFlg},</if>
+        </set>
+        WHERE task_review_id = #{taskReviewId}
+    </update>
+
+</mapper>

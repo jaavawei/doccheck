@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.task.mapper.TaskDuplicateSnapshotMapper">
+    <resultMap id="TaskDuplicateSnapshot" type="com.iwei.task.entity.TaskDuplicateSnapshot">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="info_id" property="infoId" jdbcType="INTEGER"/>
+        <result column="snapshot_repo" property="snapshotRepo" jdbcType="LONGVARCHAR"/>
+        <result column="snapshot_rule" property="snapshotRule" jdbcType="LONGVARCHAR"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="INTEGER"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_by" property="updatedBy" jdbcType="INTEGER"/>
+        <result column="del_flg" property="delFlg" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.iwei.task.entity.TaskDuplicateSnapshot">
+        INSERT INTO task_duplicate_snapshot (
+            info_id,
+            snapshot_repo,
+            snapshot_rule,
+            created_at,
+            created_by,
+            updated_at,
+            updated_by,
+            del_flg
+        ) VALUES (
+                     #{infoId},
+                     #{snapshotRepo},
+                     #{snapshotRule},
+                     #{createdAt},
+                     #{createdBy},
+                     #{updatedAt},
+                     #{updatedBy},
+                     #{delFlg}
+                 )
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO task_duplicate_snapshot (
+        info_id,
+        snapshot_repo,
+        snapshot_rule,
+        created_at,
+        created_by,
+        updated_at,
+        updated_by,
+        del_flg
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.infoId},
+            #{item.snapshotRepo},
+            #{item.snapshotRule},
+            #{item.createdAt},
+            #{item.createdBy},
+            #{item.updatedAt},
+            #{item.updatedBy},
+            #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <select id="queryByInfoId" resultMap="TaskDuplicateSnapshot">
+        SELECT
+            id,
+            info_id,
+            snapshot_repo,
+            snapshot_rule,
+            created_at,
+            created_by,
+            updated_at,
+            updated_by,
+            del_flg
+        FROM task_duplicate_snapshot
+        WHERE info_id = #{infoId} AND del_flg = 0
+    </select>
+</mapper>

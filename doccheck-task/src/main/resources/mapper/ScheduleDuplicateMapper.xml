@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.task.mapper.ScheduleDuplicateMapper">
+
+    <resultMap id="ScheduleDuplicate" type="com.iwei.task.entity.ScheduleDuplicate">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="doc_id" property="docId" jdbcType="INTEGER"/>
+        <result column="task_status" property="taskStatus" jdbcType="INTEGER"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_by" property="updatedBy" jdbcType="INTEGER"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="INTEGER"/>
+        <result column="del_flg" property="delFlg" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.iwei.task.entity.ScheduleDuplicate">
+        INSERT INTO schedule_duplicate (
+            doc_id,
+            task_status,
+            updated_at,
+            updated_by,
+            created_at,
+            created_by,
+            del_flg
+        ) VALUES (
+                     #{docId},
+                     #{taskStatus},
+                     #{updatedAt},
+                     #{updatedBy},
+                     #{createdAt},
+                     #{createdBy},
+                     #{delFlg}
+                 )
+    </insert>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule_duplicate (
+        doc_id,
+        task_status,
+        updated_at,
+        updated_by,
+        created_at,
+        created_by,
+        del_flg
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.docId},
+            #{item.taskStatus},
+            #{item.updatedAt},
+            #{item.updatedBy},
+            #{item.createdAt},
+            #{item.createdBy},
+            #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <select id="queryById" resultMap="ScheduleDuplicate" parameterType="java.lang.Integer">
+        SELECT
+            id,
+            doc_id,
+            task_status,
+            updated_at,
+            updated_by,
+            created_at,
+            created_by,
+            del_flg
+        FROM schedule_duplicate
+        WHERE id = #{id}
+    </select>
+
+    <select id="queryByDocId" resultMap="ScheduleDuplicate" parameterType="java.lang.Integer">
+        SELECT
+            id,
+            doc_id,
+            task_status,
+            updated_at,
+            updated_by,
+            created_at,
+            created_by,
+            del_flg
+        FROM schedule_duplicate
+        WHERE doc_id = #{docId}
+          AND del_flg = 0
+    </select>
+
+    <select id="queryByTaskStatus" resultMap="ScheduleDuplicate" parameterType="java.lang.Integer">
+        SELECT
+            id,
+            doc_id,
+            task_status,
+            updated_at,
+            updated_by,
+            created_at,
+            created_by,
+            del_flg
+        FROM schedule_duplicate
+        WHERE task_status = #{taskStatus}
+          AND del_flg = 0
+    </select>
+
+    <select id="queryByCondition" resultMap="ScheduleDuplicate" parameterType="com.iwei.task.entity.ScheduleDuplicate">
+        SELECT
+        id,
+        doc_id,
+        task_status,
+        updated_at,
+        updated_by,
+        created_at,
+        created_by,
+        del_flg
+        FROM schedule_duplicate
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="docId != null">
+                AND doc_id = #{docId}
+            </if>
+            <if test="taskStatus != null">
+                AND task_status = #{taskStatus}
+            </if>
+            <if test="delFlg != null">
+                AND del_flg = #{delFlg}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryByPage" resultMap="ScheduleDuplicate">
+        SELECT
+        id,
+        doc_id,
+        task_status,
+        updated_at,
+        updated_by,
+        created_at,
+        created_by,
+        del_flg
+        FROM schedule_duplicate
+        <where>
+            <if test="schedule.id != null">
+                AND id = #{schedule.id}
+            </if>
+            <if test="schedule.docId != null">
+                AND doc_id = #{schedule.docId}
+            </if>
+            <if test="schedule.taskStatus != null">
+                AND task_status = #{schedule.taskStatus}
+            </if>
+            <if test="schedule.delFlg != null">
+                AND del_flg = #{schedule.delFlg}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="getPendingTasks" resultMap="ScheduleDuplicate">
+        SELECT id,
+               doc_id,
+               task_status,
+               updated_at,
+               updated_by,
+               created_at,
+               created_by,
+               del_flg
+        FROM schedule_duplicate
+        WHERE del_flg = 0 AND task_status = 0
+        ORDER BY updated_at ASC
+        LIMIT #{batchSize}
+    </select>
+
+    <update id="batchUpdateStatus">
+        UPDATE schedule_duplicate
+        SET
+        task_status = #{status},
+        updated_at = CURRENT_TIMESTAMP,
+        updated_by = #{updatedBy}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update">
+        UPDATE schedule_duplicate
+        <set>
+            <if test="docId != null">
+                doc_id = #{docId},
+            </if>
+            <if test="taskStatus != null">
+                task_status = #{taskStatus},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateByDocId">
+        UPDATE schedule_duplicate
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="taskStatus != null">
+                task_status = #{taskStatus},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        WHERE doc_id = #{docId}
+    </update>
+
+    <update id="updateByInfoId">
+        UPDATE schedule_duplicate schedule
+        LEFT JION task_duplicate_info info ON schedule.id = info.id
+        <set>
+            <if test="scheduleDuplicate.taskStatus != null">
+                schedule.task_status = #{scheduleDuplicate.taskStatus},
+            </if>
+            <if test="scheduleDuplicate.delFlg != null">
+                schedule.del_flg = #{scheduleDuplicate.delFlg},
+            </if>
+        </set>
+        WHERE info.id = #{infoId}
+    </update>
+
+</mapper>

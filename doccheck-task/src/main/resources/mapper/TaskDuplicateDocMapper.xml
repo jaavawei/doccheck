@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.task.mapper.TaskDuplicateDocMapper">
+
+    <resultMap id="TaskDuplicateDoc" type="com.iwei.task.entity.TaskDuplicateDoc">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="info_id" property="infoId" jdbcType="INTEGER"/>
+        <result column="doc_name" property="docName" jdbcType="VARCHAR"/>
+        <result column="file_id" property="fileId" jdbcType="INTEGER"/>
+        <result column="row_index" property="rowIndex" jdbcType="INTEGER"/>
+        <result column="task_status" property="taskStatus" jdbcType="INTEGER"/>
+        <result column="extract_content" property="extractContent" jdbcType="LONGVARCHAR"/>
+        <result column="result_id" property="resultId" jdbcType="INTEGER"/>
+        <result column="duplicate_result" property="duplicateResult" jdbcType="LONGVARCHAR"/>
+        <result column="error_msg" property="errorMsg" jdbcType="VARCHAR"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_by" property="updatedBy" jdbcType="INTEGER"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="INTEGER"/>
+        <result column="del_flg" property="delFlg" jdbcType="INTEGER"/>
+        <result column="repo_doc_id" property="repoDocId" jdbcType="INTEGER"/>
+        <result column="duplicate_flg" property="duplicateFlg" jdbcType="INTEGER"/>
+        <result column="duplicate_msg" property="duplicateMsg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, info_id, doc_name, file_id, row_index, task_status,
+        extract_content, result_id, duplicate_result, error_msg, updated_at, updated_by,
+        created_at, created_by, del_flg, repo_doc_id, duplicate_flg, duplicate_msg
+    </sql>
+
+    <select id="queryById" resultMap="TaskDuplicateDoc">
+        SELECT <include refid="baseColumnList"/>
+        FROM task_duplicate_doc
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="selectList" resultMap="TaskDuplicateDoc">
+        SELECT <include refid="baseColumnList"/>
+        FROM task_duplicate_doc
+        WHERE del_flg = 0
+        <if test="infoId != null">
+            AND info_id = #{infoId}
+        </if>
+        <if test="docName != null and docName != ''">
+            AND doc_name LIKE CONCAT('%', #{docName}, '%')
+        </if>
+        <if test="taskStatus != null">
+            AND task_status = #{taskStatus}
+        </if>
+        <if test="fileId != null">
+            AND file_id = #{fileId}
+        </if>
+        <if test="rowIndex != null">
+            AND row_index = #{rowIndex}
+        </if>
+    </select>
+
+    <select id="countByInfoId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM task_duplicate_doc
+        WHERE info_id = #{infoId}
+          AND del_flg = 0
+    </select>
+
+    <select id="queryByInfoId" resultMap="TaskDuplicateDoc">
+        SELECT
+            doc.id, doc.doc_name, doc.file_id, doc.row_index, doc.task_status,
+            doc.extract_content, doc.result_id, doc.error_msg, doc.repo_doc_id, doc.duplicate_flg, doc.duplicate_msg
+        FROM task_duplicate_doc doc
+        WHERE doc.info_id = #{infoId} AND doc.del_flg = 0
+    </select>
+
+    <select id="queryRepositoryDuplicateId" resultType="java.lang.Integer">
+        SELECT info.repository_duplicate_id
+        FROM task_duplicate_info info
+                 INNER JOIN task_duplicate_doc doc ON info.id = doc.info_id
+        WHERE doc.id = #{id}
+        AND info.del_flg = 0 AND doc.del_flg = 0
+    </select>
+
+    <select id="queryDocStatusByInfoId" resultType="java.lang.Integer">
+        SELECT task_status
+        FROM task_duplicate_doc
+        WHERE info_id = #{infoId}
+        AND del_flg = 0
+    </select>
+
+    <select id="queryByInfoIdAndRepoDocId" resultType="com.iwei.task.entity.TaskDuplicateDoc">
+        SELECT
+            id, info_id, doc_name, file_id, row_index, task_status,
+            extract_content, result_id, duplicate_result, error_msg, updated_at, updated_by,
+            created_at, created_by, del_flg, repo_doc_id, duplicate_flg
+        FROM task_duplicate_doc
+        WHERE info_id = #{infoId}
+        AND repo_doc_id = #{repoDocId}
+        AND del_flg = 0
+    </select>
+
+    <select id="queryByCondition" resultType="com.iwei.task.entity.TaskDuplicateDoc">
+        SELECT
+            id, info_id, doc_name, file_id, row_index, task_status,
+            extract_content, result_id, duplicate_result, error_msg, updated_at, updated_by,
+            created_at, created_by, del_flg, repo_doc_id, duplicate_flg
+        FROM task_duplicate_doc
+        WHERE del_flg = 0
+        <if test="infoId != null">
+            AND info_id = #{infoId}
+        </if>
+        <if test="docName != null">
+            AND doc_name LIKE CONCAT('%', #{docName}, '%')
+        </if>
+        <if test="taskStatus != null">
+            AND task_status = #{taskStatus}
+        </if>
+        <if test="fileId != null">
+            AND file_id = #{fileId}
+        </if>
+        <if test="rowIndex != null">
+            AND row_index = #{rowIndex}
+        </if>
+        <if test="repoDocId != null">
+            AND repo_doc_id = #{repoDocId}
+        </if>
+        <if test="duplicateFlg != null">
+            AND duplicate_flg = #{duplicateFlg}
+        </if>
+        <if test="duplicateMsg != null">
+            AND duplicate_msg LIKE CONCAT('%', #{duplicateMsg}, '%')
+        </if>
+        <if test="duplicateResult != null">
+            AND duplicate_result LIKE CONCAT('%', #{duplicateResult}, '%')
+        </if>
+        <if test="extractContent != null">
+            AND extract_content LIKE CONCAT('%', #{extractContent}, '%')
+        </if>
+        <if test="errorMsg != null">
+            AND error_msg LIKE CONCAT('%', #{errorMsg}, '%')
+        </if>
+        <if test="resultId != null">
+            AND result_id = #{resultId}
+        </if>
+    </select>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_duplicate_doc (
+            info_id, doc_name, file_id, row_index, task_status,
+            extract_content, result_id, error_msg, updated_at,
+            updated_by, created_at, created_by, del_flg, repo_doc_id, duplicate_flg, duplicate_msg
+        ) VALUES (
+                     #{infoId}, #{docName}, #{fileId}, #{rowIndex}, #{taskStatus},
+                     #{extractContent}, #{resultId}, #{errorMsg}, #{updatedAt},
+                     #{updatedBy}, #{createdAt}, #{createdBy}, #{delFlg}, #{repoDocId}, #{duplicateFlg}, #{duplicateMsg}
+                 )
+    </insert>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_duplicate_doc (
+        info_id, doc_name, file_id, row_index, task_status,
+        extract_content, result_id, error_msg, updated_at,
+        updated_by, created_at, created_by, del_flg, repo_doc_id, duplicate_flg, duplicate_msg
+        ) VALUES
+        <foreach collection="list" item="doc" separator=",">
+            (
+            #{doc.infoId},
+            #{doc.docName},
+            #{doc.fileId},
+            #{doc.rowIndex},
+            #{doc.taskStatus},
+            #{doc.extractContent},
+            #{doc.resultId},
+            #{doc.errorMsg},
+            #{doc.updatedAt},
+            #{doc.updatedBy},
+            #{doc.createdAt},
+            #{doc.createdBy},
+            #{doc.delFlg},
+            #{doc.repoDocId},
+            #{doc.duplicateFlg},
+            #{doc.duplicateMsg}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateById">
+        UPDATE task_duplicate_doc
+        <set>
+            <if test="infoId != null">info_id = #{infoId},</if>
+            <if test="docName != null and docName != ''">doc_name = #{docName},</if>
+            <if test="fileId != null">file_id = #{fileId},</if>
+            <if test="rowIndex != null">row_index = #{rowIndex},</if>
+            <if test="taskStatus != null">task_status = #{taskStatus},</if>
+            <if test="extractContent != null">extract_content = #{extractContent},</if>
+            <if test="resultId != null">result_id = #{resultId},</if>
+            <if test="duplicateResult != null and duplicateResult != ''">duplicate_result= #{duplicateResult},</if>
+            <if test="errorMsg != null and errorMsg != ''">error_msg = #{errorMsg},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="delFlg != null">del_flg = #{delFlg},</if>
+            <if test="repoDocId != null">repo_doc_id = #{repoDocId},</if>
+            <if test="duplicateFlg != null">duplicate_flg = #{duplicateFlg},</if>
+            <if test="duplicateMsg != null and duplicateMsg != ''">duplicate_msg = #{duplicateMsg},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateByInfoId">
+        UPDATE task_duplicate_doc
+        <set>
+            <if test="docName != null and docName != ''">doc_name = #{docName},</if>
+            <if test="fileId != null">file_id = #{fileId},</if>
+            <if test="rowIndex != null">row_index = #{rowIndex},</if>
+            <if test="taskStatus != null">task_status = #{taskStatus},</if>
+            <if test="extractContent != null">extract_content = #{extractContent},</if>
+            <if test="resultId != null">result_id = #{resultId},</if>
+            <if test="errorMsg != null and errorMsg != ''">error_msg = #{errorMsg},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="delFlg != null">del_flg = #{delFlg},</if>
+            <if test="repoDocId != null">repo_doc_id = #{repoDocId},</if>
+            <if test="duplicateFlg != null">duplicate_flg = #{duplicateFlg},</if>
+            <if test="duplicateMsg != null and duplicateMsg != ''">duplicate_msg = #{duplicateMsg},</if>
+        </set>
+        WHERE info_id = #{infoId}
+    </update>
+</mapper>

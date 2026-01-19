@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.task.mapper.TaskReviewInfoMapper">
+
+    <resultMap id="TaskReviewInfo" type="com.iwei.task.entity.TaskReviewInfo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="task_review_name" property="taskReviewName" jdbcType="VARCHAR"/>
+        <result column="rule_review_id" property="ruleReviewId" jdbcType="INTEGER"/>
+        <result column="repository_review_id" property="repositoryReviewId" jdbcType="INTEGER"/>
+        <result column="task_status" property="taskStatus" jdbcType="INTEGER"/>
+        <result column="project_name" property="projectName" jdbcType="VARCHAR"/>
+        <result column="project_type" property="projectType" jdbcType="INTEGER"/>
+        <result column="project_year" property="projectYear" jdbcType="INTEGER"/>
+        <result column="review_result" property="reviewResult" jdbcType="LONGVARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result column="del_flg" property="delFlg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, task_review_name, rule_review_id, repository_review_id, task_status, project_name, project_type, project_year,
+        review_result, created_by, created_at, updated_by, updated_at, del_flg
+    </sql>
+
+    <select id="queryById" resultMap="TaskReviewInfo">
+        SELECT <include refid="baseColumnList"/>
+        FROM task_review_info
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="selectList" resultMap="TaskReviewInfo">
+        SELECT <include refid="baseColumnList"/>
+        FROM task_review_info
+        WHERE del_flg = 0
+        <if test="taskReviewName != null and taskReviewName != ''">
+            AND task_review_name LIKE CONCAT('%', #{taskReviewName}, '%')
+        </if>
+        <if test="repositoryReviewId != null">
+            AND repository_review_id = #{repositoryReviewId}
+        </if>
+        <if test="taskStatus != null">
+            AND task_status = #{taskStatus}
+        </if>
+    </select>
+
+    <select id="queryPageByCondition" resultMap="TaskReviewInfo">
+        SELECT
+        <include refid="baseColumnList"/>
+        FROM task_review_info
+        <where>
+            <if test="taskReviewInfo.id != null">
+                AND id = #{taskReviewInfo.id}
+            </if>
+            <if test="taskReviewInfo.taskReviewName != null and taskReviewInfo.taskReviewName != ''">
+                AND task_review_name LIKE CONCAT('%', #{taskReviewInfo.taskReviewName}, '%')
+            </if>
+            <if test="taskReviewInfo.repositoryReviewId != null">
+                AND repository_review_id = #{taskReviewInfo.repositoryReviewId}
+            </if>
+            <if test="taskReviewInfo.taskStatus != null">
+                AND task_status = #{taskReviewInfo.taskStatus}
+            </if>
+            <if test="taskReviewInfo.projectName != null and taskReviewInfo.projectName != ''">
+                AND project_name LIKE CONCAT('%', #{taskReviewInfo.projectName}, '%')
+            </if>
+            <if test="taskReviewInfo.projectType != null">
+                AND project_type = #{taskReviewInfo.projectType}
+            </if>
+            <if test="taskReviewInfo.projectYear != null">
+                AND project_year = #{taskReviewInfo.projectYear}
+            </if>
+            <if test="taskReviewInfo.ruleReviewId != null">
+                AND rule_review_id = #{taskReviewInfo.ruleReviewId}
+            </if>
+            <if test="taskReviewInfo.createdBy != null">
+                AND created_by = #{taskReviewInfo.createdBy}
+            </if>
+            <if test="taskReviewInfo.createdAt != null">
+                AND created_at = #{taskReviewInfo.createdAt}
+            </if>
+            <if test="taskReviewInfo.updatedBy != null">
+                AND updated_by = #{taskReviewInfo.updatedBy}
+            </if>
+            <if test="taskReviewInfo.updatedAt != null">
+                AND updated_at = #{taskReviewInfo.updatedAt}
+            </if>
+            <if test="taskReviewInfo.delFlg != null">
+                AND del_flg = #{taskReviewInfo.delFlg}
+            </if>
+            <if test="taskReviewInfo.reviewResult != null and taskReviewInfo.reviewResult != ''">
+                AND review_result = #{taskReviewInfo.reviewResult}
+            </if> <!-- 新增条件 -->
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM task_review_info
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="taskReviewName != null and taskReviewName != ''">
+                AND task_review_name LIKE CONCAT('%', #{taskReviewName}, '%')
+            </if>
+            <if test="repositoryReviewId != null">
+                AND repository_review_id = #{repositoryReviewId}
+            </if>
+            <if test="taskStatus != null">
+                AND task_status = #{taskStatus}
+            </if>
+            <if test="projectName != null and projectName != ''">
+                AND project_name LIKE CONCAT('%', #{projectName}, '%')
+            </if>
+            <if test="projectType != null">
+                AND project_type = #{projectType}
+            </if>
+            <if test="projectYear != null">
+                AND project_year = #{projectYear}
+            </if>
+            <if test="ruleReviewId != null">
+                AND rule_review_id = #{ruleReviewId}
+            </if>
+            <if test="createdBy != null">
+                AND created_by = #{createdBy}
+            </if>
+            <if test="createdAt != null">
+                AND created_at = #{createdAt}
+            </if>
+            <if test="updatedBy != null">
+                AND updated_by = #{updatedBy}
+            </if>
+            <if test="updatedAt != null">
+                AND updated_at = #{updatedAt}
+            </if>
+            <if test="delFlg != null">
+                AND del_flg = #{delFlg}
+            </if>
+            <if test="reviewResult != null and reviewResult != ''">
+                AND review_result = #{reviewResult}
+            </if> <!-- 新增条件 -->
+        </where>
+    </select>
+
+    <select id="queryRuleByReviewId" resultType="com.iwei.rule.entity.RuleReview">
+        SELECT DISTINCT rule.id, rule.rule_name, rule.content, rule.agent_url
+        FROM task_review_info info
+        INNER JOIN task_review_rule_mapping map ON info.id = map.task_review_id
+        INNER JOIN rule_review rule ON map.rule_review_id = rule.id
+        WHERE info.id = #{taskReviewId}
+        AND info.del_flg = 0 AND map.del_flg = 0 AND rule.del_flg = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_review_info (
+            task_review_name, repository_review_id, task_status, project_name, project_type, project_year,
+            rule_review_id, created_by, created_at, updated_by, updated_at, del_flg, review_result <!-- 新增字段 -->
+        ) VALUES (
+                     #{taskReviewName}, #{repositoryReviewId}, #{taskStatus}, #{projectName}, #{projectType}, #{projectYear},
+                     #{ruleReviewId}, #{createdBy}, #{createdAt}, #{updatedBy}, #{updatedAt}, #{delFlg}, #{reviewResult} <!-- 新增字段 -->
+                 )
+    </insert>
+
+    <update id="updateById">
+        UPDATE task_review_info
+        <set>
+            <if test="taskReviewName != null and taskReviewName != ''">
+                task_review_name = #{taskReviewName},
+            </if>
+            <if test="repositoryReviewId != null">
+                repository_review_id = #{repositoryReviewId},
+            </if>
+            <if test="taskStatus != null">
+                task_status = #{taskStatus},
+            </if>
+            <if test="projectName != null and projectName != ''">
+                project_name = #{projectName},
+            </if>
+            <if test="projectType != null">
+                project_type = #{projectType},
+            </if>
+            <if test="projectYear != null">
+                project_year = #{projectYear},
+            </if>
+            <if test="ruleReviewId != null">
+                rule_review_id = #{ruleReviewId},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+            <if test="reviewResult != null and reviewResult != ''">
+                review_result = #{reviewResult},
+            </if> <!-- 新增字段 -->
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE task_review_info SET del_flg = 1 WHERE id = #{id}
+    </update>
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.task.mapper.TaskDuplicateInfoMapper">
+
+    <resultMap id="TaskDuplicateInfo" type="com.iwei.task.entity.TaskDuplicateInfo">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="task_duplicate_name" property="taskDuplicateName" jdbcType="VARCHAR"/>
+        <result column="repository_duplicate_id" property="repositoryDuplicateId" jdbcType="BIGINT"/>
+        <result column="rule_duplicate_id" property="ruleDuplicateId" jdbcType="BIGINT"/>
+        <result column="duplicate_type" property="duplicateType" jdbcType="INTEGER"/>
+        <result column="data_type" property="dataType" jdbcType="VARCHAR"/>
+        <result column="task_status" property="taskStatus" jdbcType="INTEGER"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_by" property="updatedBy" jdbcType="INTEGER"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="INTEGER"/>
+        <result column="del_flg" property="delFlg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, task_duplicate_name, repository_duplicate_id, rule_duplicate_id,
+        duplicate_type, data_type, task_status, updated_at, updated_by, created_at, created_by, del_flg
+    </sql>
+
+    <select id="queryById" resultMap="TaskDuplicateInfo">
+        SELECT <include refid="baseColumnList"/>
+        FROM task_duplicate_info
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="countByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM task_duplicate_info
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="taskDuplicateName != null and taskDuplicateName != ''">
+                AND task_duplicate_name LIKE CONCAT('%', #{taskDuplicateName}, '%')
+            </if>
+            <if test="repositoryDuplicateId != null">
+                AND repository_duplicate_id = #{repositoryDuplicateId}
+            </if>
+            <if test="ruleDuplicateId != null">
+                AND rule_duplicate_id = #{ruleDuplicateId}
+            </if>
+            <if test="dataType != null and dataType != ''">
+                AND data_type = #{dataType}
+            </if>
+            <if test="taskStatus != null">
+                AND task_status = #{taskStatus}
+            </if>
+            <if test="updatedBy != null">
+                AND updated_by = #{updatedBy}
+            </if>
+            <if test="updatedAt != null">
+                AND updated_at = #{updatedAt}
+            </if>
+            <if test="delFlg != null">
+                AND del_flg = #{delFlg}
+            </if>
+            <if test="duplicateType != null">
+                AND duplicate_type = #{duplicateType}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryPageByCondition" resultMap="TaskDuplicateInfo">
+        SELECT <include refid="baseColumnList"/>
+        FROM task_duplicate_info
+        <where>
+            <if test="taskDuplicateInfo.id != null">
+                AND id = #{taskDuplicateInfo.id}
+            </if>
+            <if test="taskDuplicateInfo.taskDuplicateName != null and taskDuplicateInfo.taskDuplicateName != ''">
+                AND task_duplicate_name LIKE CONCAT('%', #{taskDuplicateInfo.taskDuplicateName}, '%')
+            </if>
+            <if test="taskDuplicateInfo.repositoryDuplicateId != null">
+                AND repository_duplicate_id = #{taskDuplicateInfo.repositoryDuplicateId}
+            </if>
+            <if test="taskDuplicateInfo.ruleDuplicateId != null">
+                AND rule_duplicate_id = #{taskDuplicateInfo.ruleDuplicateId}
+            </if>
+            <if test="taskDuplicateInfo.dataType != null and taskDuplicateInfo.dataType != ''">
+                AND data_type = #{taskDuplicateInfo.dataType}
+            </if>
+            <if test="taskDuplicateInfo.taskStatus != null">
+                AND task_status = #{taskDuplicateInfo.taskStatus}
+            </if>
+            <if test="taskDuplicateInfo.updatedBy != null">
+                AND updated_by = #{taskDuplicateInfo.updatedBy}
+            </if>
+            <if test="taskDuplicateInfo.updatedAt != null">
+                AND updated_at = #{taskDuplicateInfo.updatedAt}
+            </if>
+            <if test="taskDuplicateInfo.delFlg != null">
+                AND del_flg = #{taskDuplicateInfo.delFlg}
+            </if>
+            <if test="taskDuplicateInfo.duplicateType != null">
+                AND duplicate_type = #{taskDuplicateInfo.duplicateType}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="queryLikeTaskNames" resultType="java.lang.String">
+        SELECT task_duplicate_name
+        FROM task_duplicate_info
+        WHERE task_duplicate_name LIKE CONCAT('%', #{taskDuplicateName}, '%')
+        AND del_flg = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_duplicate_info (
+            task_duplicate_name, repository_duplicate_id, rule_duplicate_id,
+            duplicate_type, data_type, task_status, updated_at, updated_by, created_at, created_by, del_flg
+        ) VALUES (
+                     #{taskDuplicateName}, #{repositoryDuplicateId}, #{ruleDuplicateId},
+                     #{duplicateType}, #{dataType}, #{taskStatus}, #{updatedAt}, #{updatedBy}, #{createdAt}, #{createdBy}, #{delFlg}
+                 )
+    </insert>
+
+    <update id="updateById">
+        UPDATE task_duplicate_info
+        <set>
+            <if test="taskDuplicateName != null and taskDuplicateName != ''">
+                task_duplicate_name = #{taskDuplicateName},
+            </if>
+            <if test="repositoryDuplicateId != null">
+                repository_duplicate_id = #{repositoryDuplicateId},
+            </if>
+            <if test="ruleDuplicateId != null">
+                rule_duplicate_id = #{ruleDuplicateId},
+            </if>
+            <if test="dataType != null">
+                data_type = #{dataType},
+            </if>
+            <if test="taskStatus != null">
+                task_status = #{taskStatus},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+            <if test="duplicateType != null">
+                duplicate_type = #{duplicateType},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+</mapper>

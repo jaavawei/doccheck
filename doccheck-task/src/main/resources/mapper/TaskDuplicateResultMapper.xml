@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.task.mapper.TaskDuplicateResultMapper">
+
+    <resultMap id="TaskDuplicateResult" type="com.iwei.task.entity.TaskDuplicateResult">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="task_doc_id" property="taskDocId" jdbcType="INTEGER"/>
+        <result column="repositoty_id" property="repositoryDocId" jdbcType="INTEGER"/>
+        <result column="duplicate_result" property="duplicateResult" jdbcType="LONGVARCHAR"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_by" property="updatedBy" jdbcType="INTEGER"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="INTEGER"/>
+        <result column="del_flg" property="delFlg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, task_doc_id, repository_doc_id, duplicate_result, del_flg
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_duplicate_result (
+            task_doc_id,
+            repository_doc_id,
+            duplicate_result,
+            updated_at,
+            updated_by,
+            created_at,
+            created_by,
+            del_flg
+        ) VALUES (
+                     #{taskDocId},
+                     #{repositoryDocId},
+                     #{duplicateResult},
+                     #{updatedAt},
+                     #{updatedBy},
+                     #{createdAt},
+                     #{createdBy},
+                     #{delFlg}
+                 )
+    </insert>
+
+    <select id="queryById" resultMap="TaskDuplicateResult">
+        SELECT <include refid="baseColumnList"/>
+        FROM task_duplicate_result
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+</mapper>
