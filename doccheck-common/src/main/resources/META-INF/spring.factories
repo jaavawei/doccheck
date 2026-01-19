@@ -1,0 +1,2 @@
+# Register ApplicationListener for external configuration loading
+org.springframework.context.ApplicationListener=com.iwei.common.config.ExternalConfigBootstrap
