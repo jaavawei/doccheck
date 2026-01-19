@@ -1,0 +1,128 @@
+server:
+  port: 32006
+  servlet:
+    context-path: /
+  tomcat:
+    connection-timeout: 360000000
+    keep-alive-timeout: 360000000
+    max-connections: 8192
+    accept-count: 1000
+    threads:
+      max: 200
+      min-spare: 10
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10000000MB
+      max-request-size: 100000000MB
+      file-size-threshold: 2KB
+  datasource:
+#    username: zkw
+#    password: Gauss@2025
+#    url: jdbc:gaussdb://101.132.23.165:5432/doccheck
+#    driver-class-name: com.huawei.gaussdb.jdbc.Driver
+#    username: root
+#    password: YptGauss@1014!
+#    url: jdbc:gaussdb://172.4.46.17:8000/doccheck
+#    driver-class-name: com.huawei.gaussdb.jdbc.Driver
+    username: root
+    password: 123456
+    url: jdbc:mysql://101.132.23.165:3306/doccheck?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+#    url: jdbc:mysql://172.29.61.1:33061/doc_xj?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 20
+      min-idle: 20
+      max-active: 100
+      max-wait: 60000
+      validation-query: SELECT 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      keep-alive: true
+      phy-max-use-count: 1000000
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: 123456
+      filter:
+        stat:
+          enabled: true
+          slow-sql-millis: 2000
+          log-slow-sql: true
+        wall:
+          enabled: true
+        config:
+          enabled: true
+  web:
+    resources:
+      static-locations: classpath:/static/,classpath:/templates/,classpath:/META-INF/resources/,classpath:/resources/,classpath:/public/
+  mvc:
+    async:
+      request-timeout: 360000000
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+
+# 外部配置开关，默认为true，设为false可在本地开发时跳过外部配置加载
+external:
+  config:
+    enabled: false
+
+storage:
+  service:
+    type: minio # 可选值: huaweiobs, aliyunoss, rustfs, minio，jiangsu
+
+huawei:
+  obs:
+    endpoint: obsv3.xj-region-2.sgic.sgcc.com.cn
+    accessKeyId: RPKQJGMLLUFCLNS3SF3I
+    secretAccessKey: mxySuUokVwVPfo2bgktTrVGUPtbyKKO7RpHgoffS
+    bucketName: xmcbdtgkpjyy-upload-production
+#
+minio:
+  url: http://101.132.23.165:9000
+#  url: http://172.29.61.1:39000
+  accessKey: minioadmin
+  secretKey: minioadmin
+
+libreoffice:
+  path: soffice
+document:
+  converter:
+    type: libreoffice  # 可选值: libreoffice, poi
+schedule:
+  task:
+    batch-size: 100
+    thread-pool-size: 3
+    scan-interval-seconds: 5
+    max-retry-count: 3
+    max-doc-length: 30000
+    session:
+      create-url: http://25.83.75.207:18063/lmp-cloud-ias-server/api/session/create
+      delete-url: http://25.83.75.207:18063/lmp-cloud-ias-server/api/session/delete
+      create-token: 9b583c0469154670b57f661929f2b915
+      delete-token: 9b583c0469154670b57f661929f2b915
+#      create-url: http://25.222.64.60:80/lmp-cloud-ias-server/api/aliAgent/V1/sessionCreate
+#      delete-url: http://25.222.64.60:80/lmp-cloud-ias-server/api/aliAgent/V1/sessionDel
+#      create-token: 13c7b7a337b2451692b9b3b10903981b
+#      delete-token: 13c7b7a337b2451692b9b3b10903981b
+      expire-time: 604800000 # 7天的毫秒数
+    agent:
+      type: fastgpt # 智能体调用方式配置，可选值: facade, bailian, fastgpt
+    extract:
+      type: text # 可选值: file, text
+    enabled: false
+
+sql:
+  log:
+    enabled: true
+
+logging:
+  path: ../logs
+
+license:
+  key: NariRuizhong
+  content: IgIYx7LcrB6lHc4G0xV4LTfqr2+E+5dCzqad17LHphA8FOkSxSlynxLLD5oEq6X/ZTomGA8FQkXcHoklI2OJkA==
