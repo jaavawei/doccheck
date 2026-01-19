@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.repository.mapper.ScheduleExtractMapper">
+
+    <resultMap type="com.iwei.repository.entity.ScheduleExtract" id="ScheduleExtract">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="source_id" property="sourceId" jdbcType="INTEGER"/>
+        <result column="task_status" property="taskStatus" jdbcType="INTEGER"/>
+        <result column="task_source" property="taskSource" jdbcType="INTEGER"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_by" property="updatedBy" jdbcType="INTEGER"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="INTEGER"/>
+        <result column="del_flg" property="delFlg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, source_id, task_status, task_source,
+        updated_at, updated_by, created_at, created_by, del_flg
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule_extract (
+            source_id, task_status, task_source,
+            updated_at, updated_by, created_at, created_by, del_flg
+        )
+        VALUES (
+                #{sourceId}, #{taskStatus}, #{taskSource},
+                #{updatedAt}, #{updatedBy}, #{createdAt}, #{createdBy}, #{delFlg}
+        )
+    </insert>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule_extract (
+            source_id, task_status, task_source,
+            updated_at, updated_by, created_at, created_by, del_flg
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.sourceId},
+                #{item.taskStatus},
+                #{item.taskSource},
+                #{item.updatedAt},
+                #{item.updatedBy},
+                #{item.createdAt},
+                #{item.createdBy},
+                #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <update id="update">
+        UPDATE schedule_extract
+        <set>
+            <if test="sourceId != null">
+                source_id = #{sourceId},
+            </if>
+            <if test="taskStatus != null">
+                task_status = #{taskStatus},
+            </if>
+            <if test="taskSource != null">
+                task_source = #{taskSource},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateBySourceId">
+        UPDATE schedule_extract
+        <set>
+            <if test="taskStatus != null">
+                task_status = #{taskStatus},
+            </if>
+            <if test="taskSource != null">
+                task_source = #{taskSource},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        WHERE source_id = #{sourceId}
+    </update>
+
+    <select id="getPendingTasks" resultMap="ScheduleExtract">
+        SELECT
+        <include refid="baseColumnList"/>
+        FROM schedule_extract
+        WHERE
+            task_status = 0
+        AND
+            del_flg = 0
+        ORDER BY created_at ASC
+        LIMIT #{batchSize}
+    </select>
+
+    <select id="queryTaskStatusBySourceId" resultType="java.lang.Integer">
+        SELECT task_status
+        FROM schedule_extract
+        WHERE
+            source_id = #{sourceId}
+          AND
+            del_flg = 0
+    </select>
+
+</mapper>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.repository.mapper.RepositoryReviewMapper">
+
+    <resultMap id="RepositoryReview" type="com.iwei.repository.entity.RepositoryReview">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="repository_review_name" property="repositoryReviewName" jdbcType="VARCHAR"/>
+        <result column="data_source" property="dataSource" jdbcType="TINYINT"/>
+        <result column="project_name" property="projectName" jdbcType="VARCHAR"/>
+        <result column="project_type" property="projectType" jdbcType="INTEGER"/>
+        <result column="project_year" property="projectYear" jdbcType="INTEGER"/>
+        <result column="api_url" property="apiUrl" jdbcType="VARCHAR"/>
+        <result column="api_token" property="apiToken" jdbcType="VARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result column="del_flg" property="delFlg" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, repository_review_name, data_source, project_name, project_type, project_year,
+        api_url, api_token, created_by, created_at, updated_by, updated_at, del_flg
+    </sql>
+
+    <select id="queryById" resultMap="RepositoryReview">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_review
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="selectList" resultMap="RepositoryReview">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_review
+        WHERE del_flg = 0
+        <if test="repositoryReviewName != null and repositoryReviewName != ''">
+            AND repository_review_name LIKE CONCAT('%', #{repositoryReviewName}, '%')
+        </if>
+        <if test="dataSource != null">
+            AND data_source = #{dataSource}
+        </if>
+    </select>
+
+    <select id="queryPageByCondition" resultMap="RepositoryReview">
+        SELECT
+        <include refid="baseColumnList"/>
+        FROM repository_review
+        <where>
+            <if test="repositoryReviewVo.id != null">
+                AND id = #{repositoryReviewVo.id}
+            </if>
+            <if test="repositoryReviewVo.repositoryReviewName != null and repositoryReviewVo.repositoryReviewName != ''">
+                AND repository_review_name LIKE CONCAT('%', #{repositoryReviewVo.repositoryReviewName}, '%')
+            </if>
+            <if test="repositoryReviewVo.dataSource != null">
+                AND data_source = #{repositoryReviewVo.dataSource}
+            </if>
+            <if test="repositoryReviewVo.projectName != null and repositoryReviewVo.projectName != ''">
+                AND project_name LIKE CONCAT('%', #{repositoryReviewVo.projectName}, '%')
+            </if>
+            <if test="repositoryReviewVo.projectType != null">
+                AND project_type = #{repositoryReviewVo.projectType}
+            </if>
+            <if test="repositoryReviewVo.projectYear != null">
+                AND project_year = #{repositoryReviewVo.projectYear}
+            </if>
+            <if test="repositoryReviewVo.createdBy != null">
+                AND created_by = #{repositoryReviewVo.createdBy}
+            </if>
+            <if test="repositoryReviewVo.createdAt != null">
+                AND created_at = #{repositoryReviewVo.createdAt}
+            </if>
+            <if test="repositoryReviewVo.updatedBy != null">
+                AND updated_by = #{repositoryReviewVo.updatedBy}
+            </if>
+            <if test="repositoryReviewVo.updatedAt != null">
+                AND updated_at = #{repositoryReviewVo.updatedAt}
+            </if>
+            <if test="repositoryReviewVo.delFlg != null">
+                AND del_flg = #{repositoryReviewVo.delFlg}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM repository_review
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="repositoryReviewName != null and repositoryReviewName != ''">
+                AND repository_review_name LIKE CONCAT('%', #{repositoryReviewName}, '%')
+            </if>
+            <if test="dataSource != null">
+                AND data_source = #{dataSource}
+            </if>
+            <if test="projectName != null and projectName != ''">
+                AND project_name LIKE CONCAT('%', #{projectName}, '%')
+            </if>
+            <if test="projectType != null">
+                AND project_type = #{projectType}
+            </if>
+            <if test="projectYear != null">
+                AND project_year = #{projectYear}
+            </if>
+            <if test="createdBy != null">
+                AND created_by = #{createdBy}
+            </if>
+            <if test="createdAt != null">
+                AND created_at = #{createdAt}
+            </if>
+            <if test="updatedBy != null">
+                AND updated_by = #{updatedBy}
+            </if>
+            <if test="updatedAt != null">
+                AND updated_at = #{updatedAt}
+            </if>
+            <if test="delFlg != null">
+                AND del_flg = #{delFlg}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryDocByReviewId" resultType="com.iwei.repository.entity.RepositoryDoc">
+        SELECT DISTINCT doc.id, doc.doc_name, doc.rule_extract_id, doc.project_name, doc.project_type, doc.extract_content, doc.doc_url, doc.error_msg
+        FROM repository_review repo
+        INNER JOIN task_review_info task ON repo.id = task.repository_review_id
+        INNER JOIN repository_review_doc_mapping map ON repo.id = map.repository_review_id
+        INNER JOIN repository_doc doc ON map.repository_doc_id = doc.id
+        WHERE task.id = #{reviewId}
+        AND repo.del_flg = 0 AND task.del_flg = 0 AND doc.del_flg = 0
+    </select>
+
+    <select id="queryRuleByReviewId" resultType="com.iwei.rule.entity.RuleExtract">
+        SELECT DISTINCT rule.id, rule.rule_name, rule.elements, rule.agent_url, rule.bucket
+        FROM repository_review repo
+        INNER JOIN repository_review_extract_mapping map ON repo.id = map.repository_review_id
+        INNER JOIN rule_extract rule ON map.rule_extract_id = rule.id
+        WHERE repo.id = #{reviewId}
+        AND repo.del_flg = 0 AND map.del_flg = 0 AND rule.del_flg = 0
+    </select>
+
+    <select id="queryIdAndName" resultType="com.iwei.repository.entity.RepositoryReview">
+        SELECT id, repository_review_name
+        FROM repository_review
+        WHERE del_flg = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO repository_review (
+            repository_review_name, data_source, project_name, project_type, project_year,
+            api_url, api_token, created_by, created_at, updated_by, updated_at, del_flg
+        ) VALUES (
+            #{repositoryReviewName}, #{dataSource}, #{projectName}, #{projectType}, #{projectYear},
+            #{apiUrl}, #{apiToken}, #{createdBy}, #{createdAt}, #{updatedBy}, #{updatedAt}, #{delFlg}
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE repository_review
+        <set>
+            <if test="repositoryReviewName != null and repositoryReviewName != ''">
+                repository_review_name = #{repositoryReviewName},
+            </if>
+            <if test="dataSource != null">
+                data_source = #{dataSource},
+            </if>
+            <if test="projectName != null and projectName != ''">
+                project_name = #{projectName},
+            </if>
+            <if test="projectType != null">
+                project_type = #{projectType},
+            </if>
+            <if test="projectYear != null">
+                project_year = #{projectYear},
+            </if>
+            <if test="apiUrl != null and apiUrl != ''">
+                api_url = #{apiUrl},
+            </if>
+            <if test="apiToken != null and apiToken != ''">
+                api_token = #{apiToken},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE repository_review SET del_flg = 1 WHERE id = #{id}
+    </update>
+</mapper>

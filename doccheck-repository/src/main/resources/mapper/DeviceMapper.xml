@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.repository.mapper.DeviceMapper">
+
+    <resultMap id="DeviceResultMap" type="com.iwei.repository.entity.Device">
+        <id property="id" column="id"/>
+        <result property="deviceName" column="device_name"/>
+        <result property="deviceCode" column="device_code"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="delFlg" column="del_flg"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, device_name, device_code, created_at, created_by, updated_at, updated_by, del_flg
+    </sql>
+
+    <select id="selectById" resultMap="DeviceResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM device
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="DeviceResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM device
+        WHERE del_flg = 0
+    </select>
+
+    <select id="queryByRepoDuplicateId" resultMap="DeviceResultMap">
+        SELECT DISTINCT sl.* FROM device sl
+        INNER JOIN repository_device_mapping dsl ON sl.id = dsl.device_id
+        INNER JOIN repository_duplicate_doc_mapping ddm ON ddm.repository_doc_id = dsl.id
+        WHERE ddm.repository_duplicate_id = #{repositoryDuplicateId}
+        AND sl.del_flg = 0 AND dsl.del_flg = 0 AND ddm.del_flg = 0
+    </select>
+
+    <select id="queryByName" resultType="com.iwei.repository.entity.Device">
+        SELECT <include refid="baseColumnList"/>
+        FROM device
+        WHERE device_name = #{deviceName}
+        AND del_flg = 0
+    </select>
+
+    <select id="queryByNames" resultType="com.iwei.repository.entity.Device">
+        SELECT <include refid="baseColumnList"/>
+            FROM device
+        WHERE device_name IN
+        <foreach item="item" collection="deviceNames" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        AND del_flg = 0
+    </select>
+
+    <select id="queryByDocId" resultType="com.iwei.repository.entity.Device">
+        SELECT <include refid="baseColumnList"/>
+        FROM device
+        WHERE id IN
+        (
+            SELECT device_id
+            FROM repository_device_mapping
+            WHERE id = #{docId}
+            AND del_flg = 0
+        )
+        AND del_flg = 0
+    </select>
+    <select id="queryDeviceIdByDocId" resultType="java.lang.Integer">
+        SELECT device_id
+        FROM repository_device_mapping
+        WHERE id = #{docId}
+        AND del_flg = 0
+    </select>
+
+    <select id="queryByDeviceIdAndRepoDuplicateId" resultType="com.iwei.repository.entity.RepositoryDoc">
+        SELECT DISTINCT doc.* FROM repository_doc doc
+        INNER JOIN repository_device_mapping dsl ON doc.id = dsl.id
+        INNER JOIN repository_duplicate_doc_mapping ddm ON doc.id = ddm.repository_doc_id
+        WHERE doc.del_flg = 0 AND dsl.device_id = #{deviceId} AND ddm.repository_duplicate_id = #{repositoryDuplicateId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO device (
+            device_name,
+            device_code,
+            created_at,
+            created_by,
+            updated_at,
+            updated_by,
+            del_flg
+        ) VALUES (
+            #{deviceName},
+            #{deviceCode},
+            #{createdAt},
+            #{createdBy},
+            #{updatedAt},
+            #{updatedBy},
+            #{delFlg}
+        )
+    </insert>
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO device (
+            device_name,
+            device_code,
+            created_at,
+            created_by,
+            updated_at,
+            updated_by,
+            del_flg
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.deviceName},
+            #{item.deviceCode},
+            #{item.createdAt},
+            #{item.createdBy},
+            #{item.updatedAt},
+            #{item.updatedBy},
+            #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateById">
+        UPDATE device
+        <set>
+            <if test="deviceName != null and deviceName != ''">
+                device_name = #{deviceName},
+            </if>
+            <if test="deviceCode != null and deviceCode != ''">
+                device_code = #{deviceCode},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE device
+        SET del_flg = 1
+        WHERE id = #{id}
+    </update>
+
+</mapper>

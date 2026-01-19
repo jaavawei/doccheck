@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.repository.mapper.RepositoryDocMapper">
+
+    <resultMap type="com.iwei.repository.entity.RepositoryDoc" id="RepositoryDoc">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="rule_extract_id" property="ruleExtractId" jdbcType="INTEGER"/>
+        <result column="doc_name" property="docName" jdbcType="VARCHAR"/>
+        <result column="project_name" property="projectName" jdbcType="VARCHAR"/>
+        <result column="project_type" property="projectType" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="doc_url" property="docUrl" jdbcType="VARCHAR"/>
+        <result column="error_msg" property="errorMsg" jdbcType="LONGVARCHAR"/>
+        <result column="extract_content" property="extractContent" jdbcType="LONGVARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result column="del_flg" property="delFlg" jdbcType="INTEGER"/>
+        <result column="duplicate_flg" property="duplicateFlg" jdbcType="INTEGER"/>
+        <result column="project_code" property="projectCode" jdbcType="VARCHAR"/>
+        <result column="impl_org" property="implOrg" jdbcType="VARCHAR"/>
+        <result column="plan_year" property="planYear" jdbcType="VARCHAR"/>
+        <result column="project_msg" property="projectMsg" jdbcType="VARCHAR"/>
+        <result column="duplicate_status" property="duplicateStatus" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, rule_extract_id, doc_name, project_name, project_type,
+        status, doc_url, error_msg, extract_content,
+        created_by, created_at, updated_by, updated_at, del_flg,
+        duplicate_flg, project_code, impl_org, plan_year, project_msg, duplicate_status
+    </sql>
+
+    <select id="queryById" resultMap="RepositoryDoc">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_doc
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="countByCondition" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM repository_doc
+        <where>
+            <if test="id != null">AND id = #{id}</if>
+            <if test="ruleExtractId != null">AND rule_extract_id = #{ruleExtractId}</if>
+            <if test="docName != null and docName != ''">AND doc_name LIKE CONCAT('%', #{docName}, '%')</if>
+            <if test="projectName != null and projectName != ''">AND project_name LIKE CONCAT('%', #{projectName}, '%')</if>
+            <if test="projectType != null">AND project_type = #{projectType}</if>
+            <if test="status != null">AND status = #{status}</if>
+            <if test="docUrl != null and docUrl != ''">AND doc_url LIKE CONCAT('%', #{docUrl}, '%')</if>
+            <if test="errorMsg != null and errorMsg != ''">AND error_msg LIKE CONCAT('%', #{errorMsg}, '%')</if>
+            <if test="extractContent != null and extractContent != ''">AND extract_content LIKE CONCAT('%', #{extractContent}, '%')</if>
+            <if test="delFlg != null">AND del_flg = #{delFlg}</if>
+            <if test="duplicateFlg != null">AND duplicate_flg = #{duplicateFlg}</if>
+            <if test="projectCode != null and projectCode != ''">AND project_code LIKE CONCAT('%', #{projectCode}, '%')</if>
+            <if test="implOrg != null and implOrg != ''">AND impl_org LIKE CONCAT('%', #{implOrg}, '%')</if>
+            <if test="planYear != null and planYear != ''">AND plan_year LIKE CONCAT('%', #{planYear}, '%')</if>
+            <if test="projectMsg != null and projectMsg != ''">AND project_msg LIKE CONCAT('%', #{projectMsg}, '%')</if>
+            <if test="duplicateStatus != null">AND duplicate_status = #{duplicateStatus}</if>
+        </where>
+    </select>
+
+    <select id="queryPageByCondition" resultMap="RepositoryDoc">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_doc
+        <where>
+            <if test="repositoryDoc.id != null">AND id = #{repositoryDoc.id}</if>
+            <if test="repositoryDoc.ruleExtractId != null">AND rule_extract_id = #{repositoryDoc.ruleExtractId}</if>
+            <if test="repositoryDoc.docName != null and repositoryDoc.docName != ''">AND doc_name LIKE CONCAT('%', #{repositoryDoc.docName}, '%')</if>
+            <if test="repositoryDoc.projectName != null and repositoryDoc.projectName != ''">AND project_name LIKE CONCAT('%', #{repositoryDoc.projectName}, '%')</if>
+            <if test="repositoryDoc.projectType != null">AND project_type = #{repositoryDoc.projectType}</if>
+            <if test="repositoryDoc.status != null">AND status = #{repositoryDoc.status}</if>
+            <if test="repositoryDoc.docUrl != null and repositoryDoc.docUrl != ''">AND doc_url LIKE CONCAT('%', #{repositoryDoc.docUrl}, '%')</if>
+            <if test="repositoryDoc.errorMsg != null and repositoryDoc.errorMsg != ''">AND error_msg LIKE CONCAT('%', #{repositoryDoc.errorMsg}, '%')</if>
+            <if test="repositoryDoc.extractContent != null and repositoryDoc.extractContent != ''">AND extract_content LIKE CONCAT('%', #{repositoryDoc.extractContent}, '%')</if>
+            <if test="repositoryDoc.delFlg != null">AND del_flg = #{repositoryDoc.delFlg}</if>
+            <if test="repositoryDoc.duplicateFlg != null">AND duplicate_flg = #{repositoryDoc.duplicateFlg}</if>
+            <if test="repositoryDoc.projectCode != null and repositoryDoc.projectCode != ''">AND project_code LIKE CONCAT('%', #{repositoryDoc.projectCode}, '%')</if>
+            <if test="repositoryDoc.implOrg != null and repositoryDoc.implOrg != ''">AND impl_org LIKE CONCAT('%', #{repositoryDoc.implOrg}, '%')</if>
+            <if test="repositoryDoc.planYear != null and repositoryDoc.planYear != ''">AND plan_year LIKE CONCAT('%', #{repositoryDoc.planYear}, '%')</if>
+            <if test="repositoryDoc.projectMsg != null and repositoryDoc.projectMsg != ''">AND project_msg LIKE CONCAT('%', #{repositoryDoc.projectMsg}, '%')</if>
+            <if test="repositoryDoc.duplicateStatus != null">AND duplicate_status = #{repositoryDoc.duplicateStatus}</if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="queryByExtractRuleIds" resultMap="RepositoryDoc">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_doc
+        WHERE del_flg = 0
+        AND rule_extract_id IN
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="queryByIds" resultMap="RepositoryDoc">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_doc
+        WHERE id IN
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="queryProjectNames" resultType="java.lang.String">
+        SELECT DISTINCT project_name FROM repository_doc
+        WHERE del_flg = 0
+    </select>
+
+    <select id="queryByProjectNames" resultMap="RepositoryDoc">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_doc
+        WHERE del_flg = 0
+        AND project_name IN
+        <foreach collection="list" item="name" open="(" close=")" separator=",">
+            #{name}
+        </foreach>
+    </select>
+
+    <select id="queryByExtractRuleIdsAndProjectNames" resultType="com.iwei.repository.entity.RepositoryDoc">
+    SELECT <include refid="baseColumnList"/>
+    FROM repository_doc
+    WHERE del_flg = 0
+    <if test="ruleExtractIds != null and ruleExtractIds.size() > 0">
+        AND rule_extract_id IN
+        <foreach collection="ruleExtractIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </if>
+    <if test="projectNames != null and projectNames.size() > 0">
+        AND project_name IN
+        <foreach collection="projectNames" item="name" open="(" close=")" separator=",">
+            #{name}
+        </foreach>
+    </if>
+    </select>
+
+    <select id="queryAll" resultType="com.iwei.repository.entity.RepositoryDoc">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_doc WHERE del_flg = 0
+    </select>
+
+    <select id="queryByStationIdAndRepoDuplicateId" resultType="com.iwei.repository.entity.RepositoryDoc">
+        SELECT DISTINCT doc.* FROM repository_doc doc
+        INNER JOIN repository_doc_station_line_mapping dsl ON doc.id = dsl.id
+        INNER JOIN repository_duplicate_doc_mapping ddm ON doc.id = ddm.repository_doc_id
+        WHERE doc.del_flg = 0 AND dsl.station_line_id = #{stationLineId} AND ddm.repository_duplicate_id = #{repositoryDuplicateId}
+    </select>
+
+    <select id="queryUnderStationIdAndRepoDuplicateId" resultType="com.iwei.repository.entity.RepositoryDoc">
+        SELECT DISTINCT doc.* FROM repository_doc doc
+        INNER JOIN repository_doc_station_line_mapping dsl ON doc.id = dsl.id
+        INNER JOIN repository_duplicate_doc_mapping ddm ON doc.id = ddm.repository_doc_id
+        WHERE doc.del_flg = 0 AND ddm.repository_duplicate_id = #{repositoryDuplicateId} AND dsl.station_line_id
+        IN (
+            SELECT station_line_id FROM repository_doc_station_line_mapping
+            WHERE id = #{repositoryDocId}
+        )
+    </select>
+
+    <select id="queryDocIdByStationLineIdList" resultType="java.lang.Integer">
+        SELECT id FROM repository_doc_station_line_mapping
+        WHERE station_line_id IN
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="queryDocIdByStationLineId" resultType="java.lang.Integer">
+        SELECT id FROM repository_doc_station_line_mapping
+        WHERE station_line_id = #{stationLineId}
+    </select>
+
+    <select id="countProjectNames" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM repository_doc
+        WHERE del_flg = 0
+        <if test="projectName != null and projectName != ''">AND project_name LIKE CONCAT('%', #{projectName}, '%')</if>
+    </select>
+
+    <select id="queryPageProjectNames" resultType="java.lang.String">
+        SELECT DISTINCT project_name FROM repository_doc
+        WHERE del_flg = 0
+        <if test="projectName != null and projectName != ''">AND project_name LIKE CONCAT('%', #{projectName}, '%')</if>
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO repository_doc (
+            rule_extract_id, doc_name, project_name, project_type,
+            status, doc_url, error_msg, extract_content,
+            created_by, created_at, updated_by, updated_at, del_flg,
+            duplicate_flg, project_code, impl_org, plan_year, project_msg, duplicate_status
+        ) VALUES (
+                     #{ruleExtractId}, #{docName}, #{projectName}, #{projectType},
+                     #{status}, #{docUrl}, #{errorMsg}, #{extractContent},
+                     #{createdBy}, #{createdAt}, #{updatedBy}, #{updatedAt}, #{delFlg},
+                     #{duplicateFlg}, #{projectCode}, #{implOrg}, #{planYear}, #{projectMsg}, #{duplicateStatus}
+                 )
+    </insert>
+    
+    <insert id="batchInsert" useGeneratedKeys="true">
+        INSERT INTO repository_doc (
+            rule_extract_id, doc_name, project_name, project_type,
+            status, doc_url, error_msg, extract_content,
+            created_by, created_at, updated_by, updated_at, del_flg,
+            duplicate_flg, project_code, impl_org, plan_year, project_msg, duplicate_status
+        ) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.ruleExtractId}, #{item.docName}, #{item.projectName}, #{item.projectType},
+            #{item.status}, #{item.docUrl}, #{item.errorMsg}, #{item.extractContent},
+            #{item.createdBy}, #{item.createdAt}, #{item.updatedBy}, #{item.updatedAt}, #{item.delFlg},
+            #{item.duplicateFlg}, #{item.projectCode}, #{item.implOrg}, #{item.planYear}, #{item.projectMsg}, #{item.duplicateStatus}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateById">
+        UPDATE repository_doc
+        <set>
+            <if test="ruleExtractId != null">rule_extract_id = #{ruleExtractId},</if>
+            <if test="docName != null and docName != ''">doc_name = #{docName},</if>
+            <if test="projectName != null and projectName != ''">project_name = #{projectName},</if>
+            <if test="projectType != null">project_type = #{projectType},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="docUrl != null and docUrl != ''">doc_url = #{docUrl},</if>
+            <if test="errorMsg != null">error_msg = #{errorMsg},</if>
+            <if test="extractContent != null">extract_content = #{extractContent},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+            <if test="delFlg != null">del_flg = #{delFlg},</if>
+            <if test="duplicateFlg != null">duplicate_flg = #{duplicateFlg},</if>
+            <if test="projectCode != null and projectCode != ''">project_code = #{projectCode},</if>
+            <if test="implOrg != null and implOrg != ''">impl_org = #{implOrg},</if>
+            <if test="planYear != null and planYear != ''">plan_year = #{planYear},</if>
+            <if test="projectMsg != null and projectMsg != ''">project_msg = #{projectMsg},</if>
+            <if test="duplicateStatus != null">duplicate_status = #{duplicateStatus},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE repository_doc SET del_flg = 1 WHERE id = #{id}
+    </update>
+</mapper>

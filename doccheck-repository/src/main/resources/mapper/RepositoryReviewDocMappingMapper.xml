@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.repository.mapper.RepositoryReviewDocMappingMapper">
+
+    <resultMap type="com.iwei.repository.entity.RepositoryReviewDocMapping" id="RepositoryReviewDocMapping">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="repositoryReviewId" column="repository_review_id" jdbcType="INTEGER"/>
+        <result property="repositoryDocId" column="repository_doc_id" jdbcType="INTEGER"/>
+        <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result property="delFlg" column="del_flg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, repository_review_id, repository_doc_id,
+        created_by, created_at, updated_by, updated_at, del_flg
+    </sql>
+
+    <select id="selectById" resultMap="RepositoryReviewDocMapping">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_review_doc_mapping
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="selectList" resultMap="RepositoryReviewDocMapping">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_review_doc_mapping
+        WHERE del_flg = 0
+        <if test="repositoryReviewId != null">
+            AND repository_review_id = #{repositoryReviewId}
+        </if>
+        <if test="repositoryDocId != null">
+            AND repository_doc_id = #{repositoryDocId}
+        </if>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO repository_review_doc_mapping (
+            repository_review_id, repository_doc_id,
+            created_by, created_at, updated_by, updated_at, del_flg
+        ) VALUES (
+                     #{repositoryReviewId}, #{repositoryDocId},
+                     #{createdBy}, #{createdAt}, #{updatedBy}, #{updatedAt}, #{delFlg}
+                 )
+    </insert>
+
+    <insert id="batchInsert">
+        INSERT INTO repository_review_doc_mapping (
+        repository_doc_id, repository_review_id,
+        created_by, created_at, updated_by, updated_at, del_flg
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.repositoryDocId}, #{item.repositoryReviewId},
+            #{item.createdBy}, #{item.createdAt},
+            #{item.updatedBy}, #{item.updatedAt}, #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateById">
+        UPDATE repository_review_doc_mapping
+        <set>
+            <if test="repositoryReviewId != null">repository_review_id = #{repositoryReviewId},</if>
+            <if test="repositoryDocId != null">repository_doc_id = #{repositoryDocId},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </set>
+        WHERE id = #{id} AND del_flg = 0
+    </update>
+
+    <update id="deleteById">
+        UPDATE repository_review_doc_mapping SET del_flg = 1 WHERE id = #{id}
+    </update>
+
+    <update id="batchUpdateByReviewId">
+        UPDATE repository_review_doc_mapping
+        SET
+            status = CASE repository_doc_id
+            <foreach collection="list" item="item">
+                WHEN #{item.repositoryDocId} THEN #{item.status}
+            </foreach>
+            END,
+            del_flg = CASE repository_doc_id
+            <foreach collection="list" item="item">
+                WHEN #{item.repositoryDocId} THEN #{item.delFlg}
+            </foreach>
+        END
+        WHERE
+            repository_review_id = #{repositoryReviewId}
+        AND repository_doc_id IN
+            <foreach collection="list" item="item" open="(" separator="," close=")">
+                #{item.ruleExtractId}
+            </foreach>
+    </update>
+
+    <update id="updateByReviewId">
+        UPDATE repository_review_doc_mapping
+        <set>
+            <if test="delFlg != null">del_flg = #{delFlg},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </set>
+    WHERE
+            repository_review_id = #{repositoryReviewId}
+    </update>
+
+</mapper>

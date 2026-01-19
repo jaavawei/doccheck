@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.repository.mapper.StationLineMapper">
+
+    <resultMap id="StationLineResultMap" type="com.iwei.repository.entity.StationLine">
+        <id property="id" column="id"/>
+        <result property="stationLineName" column="station_line_name"/>
+        <result property="stationLineCode" column="station_line_code"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="delFlg" column="del_flg"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, station_line_name, station_line_code, created_at, created_by, updated_at, updated_by, del_flg
+    </sql>
+
+    <select id="selectById" resultMap="StationLineResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM station_line
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="StationLineResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM station_line
+        WHERE del_flg = 0
+    </select>
+
+    <select id="queryByRepoDuplicateId" resultMap="StationLineResultMap">
+        SELECT DISTINCT sl.* FROM station_line sl
+        INNER JOIN repository_doc_station_line_mapping dsl ON sl.id = dsl.station_line_id
+        INNER JOIN repository_duplicate_doc_mapping ddm ON ddm.repository_doc_id = dsl.id
+        WHERE ddm.repository_duplicate_id = #{repositoryDuplicateId}
+        AND sl.del_flg = 0 AND dsl.del_flg = 0 AND ddm.del_flg = 0
+    </select>
+
+    <select id="queryByName" resultType="com.iwei.repository.entity.StationLine">
+        SELECT <include refid="baseColumnList"/>
+        FROM station_line
+        WHERE station_line_name = #{stationLineName}
+        AND del_flg = 0
+    </select>
+    <select id="queryByNames" resultType="com.iwei.repository.entity.StationLine">
+        SELECT <include refid="baseColumnList"/>
+            FROM station_line
+        WHERE station_line_name IN
+        <foreach item="item" collection="stationLineNames" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        AND del_flg = 0
+    </select>
+
+    <select id="queryByDocId" resultType="com.iwei.repository.entity.StationLine">
+        SELECT <include refid="baseColumnList"/>
+        FROM station_line
+        WHERE id IN
+        (
+            SELECT station_line_id
+            FROM repository_doc_station_line_mapping
+            WHERE id = #{docId}
+            AND del_flg = 0
+        )
+        AND del_flg = 0
+    </select>
+    <select id="queryStationLineIdByDocId" resultType="java.lang.Integer">
+        SELECT station_line_id
+        FROM repository_doc_station_line_mapping
+        WHERE id = #{docId}
+        AND del_flg = 0
+    </select>
+
+    <select id="queryByStationIdAndRepoDuplicateId" resultType="com.iwei.repository.entity.RepositoryDoc">
+        SELECT DISTINCT doc.* FROM repository_doc doc
+        INNER JOIN repository_doc_station_line_mapping dsl ON doc.id = dsl.id
+        INNER JOIN repository_duplicate_doc_mapping ddm ON doc.id = ddm.repository_doc_id
+        WHERE doc.del_flg = 0 AND dsl.station_line_id = #{stationLineId} AND ddm.repository_duplicate_id = #{repositoryDuplicateId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO station_line (
+            station_line_name,
+            station_line_code,
+            created_at,
+            created_by,
+            updated_at,
+            updated_by,
+            del_flg
+        ) VALUES (
+            #{stationLineName},
+            #{stationLineCode},
+            #{createdAt},
+            #{createdBy},
+            #{updatedAt},
+            #{updatedBy},
+            #{delFlg}
+        )
+    </insert>
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO station_line (
+            station_line_name,
+            station_line_code,
+            created_at,
+            created_by,
+            updated_at,
+            updated_by,
+            del_flg
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.stationLineName},
+            #{item.stationLineCode},
+            #{item.createdAt},
+            #{item.createdBy},
+            #{item.updatedAt},
+            #{item.updatedBy},
+            #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateById">
+        UPDATE station_line
+        <set>
+            <if test="stationLineName != null and stationLineName != ''">
+                station_line_name = #{stationLineName},
+            </if>
+            <if test="stationLineCode != null and stationLineCode != ''">
+                station_line_code = #{stationLineCode},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE station_line
+        SET del_flg = 1
+        WHERE id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.repository.mapper.RepositoryDocDeviceMappingMapper">
+
+    <resultMap id="RepositoryDocDeviceMappingResultMap" type="com.iwei.repository.entity.RepositoryDocDeviceMapping">
+        <id property="id" column="id"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="docId" column="doc_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="delFlg" column="del_flg"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, device_id, doc_id, created_at, created_by, updated_at, updated_by, del_flg
+    </sql>
+
+    <select id="selectById" resultMap="RepositoryDocDeviceMappingResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_device_mapping
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="RepositoryDocDeviceMappingResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_device_mapping
+        WHERE del_flg = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO repository_device_mapping (
+            device_id,
+            doc_id,
+            created_at,
+            created_by,
+            updated_at,
+            updated_by,
+            del_flg
+        ) VALUES (
+            #{deviceId},
+            #{docId},
+            #{createdAt},
+            #{createdBy},
+            #{updatedAt},
+            #{updatedBy},
+            #{delFlg}
+        )
+    </insert>
+    <insert id="batchInsert">
+        INSERT INTO repository_device_mapping (
+            device_id,
+            doc_id,
+            created_at,
+            created_by,
+            updated_at,
+            updated_by,
+            del_flg
+        ) VALUES
+        <foreach item="item" index="index" collection="list" separator=",">
+            (
+                #{item.deviceId},
+                #{item.docId},
+                #{item.createdAt},
+                #{item.createdBy},
+                #{item.updatedAt},
+                #{item.updatedBy},
+                #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateById">
+        UPDATE repository_device_mapping
+        <set>
+            <if test="deviceId != null">
+                device_id = #{deviceId},
+            </if>
+            <if test="docId != null">
+                doc_id = #{docId},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            <if test="updatedAt != null">
+                updated_at = #{updatedAt},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            <if test="delFlg != null">
+                del_flg = #{delFlg},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE repository_device_mapping
+        SET del_flg = 1
+        WHERE id = #{id}
+    </update>
+
+</mapper>

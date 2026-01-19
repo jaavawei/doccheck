@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.repository.mapper.RepositoryDuplicateDocMappingMapper">
+
+    <resultMap type="com.iwei.repository.entity.RepositoryDuplicateDocMapping" id="RepositoryDuplicateDocMapping">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="repositoryDuplicateId" column="repository_duplicate_id" jdbcType="INTEGER"/>
+        <result property="repositoryDocId" column="repository_doc_id" jdbcType="INTEGER"/>
+        <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result property="delFlg" column="del_flg" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, repository_duplicate_id, repository_doc_id,
+        created_by, created_at, updated_by, updated_at, del_flg
+    </sql>
+
+    <select id="selectById" resultMap="RepositoryDuplicateDocMapping">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_duplicate_doc_mapping
+        WHERE id = #{id} AND del_flg = 0
+    </select>
+
+    <select id="selectList" resultMap="RepositoryDuplicateDocMapping">
+        SELECT <include refid="baseColumnList"/>
+        FROM repository_duplicate_doc_mapping
+        WHERE del_flg = 0
+        <if test="repositoryDuplicateId != null">
+            AND repository_duplicate_id = #{repositoryDuplicateId}
+        </if>
+        <if test="repositoryDocId != null">
+            AND repository_doc_id = #{repositoryDocId}
+        </if>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO repository_duplicate_doc_mapping (
+            repository_duplicate_id, repository_doc_id,
+            created_by, created_at, updated_by, updated_at, del_flg
+        ) VALUES (
+                     #{repositoryDuplicateId}, #{repositoryDocId},
+                     #{createdBy}, #{createdAt}, #{updatedBy}, #{updatedAt}, #{delFlg}
+                 )
+    </insert>
+
+    <insert id="batchInsert">
+        INSERT INTO repository_duplicate_doc_mapping (
+        repository_doc_id, repository_duplicate_id,
+        created_by, created_at, updated_by, updated_at, del_flg
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.repositoryDocId}, #{item.repositoryDuplicateId},
+            #{item.createdBy}, #{item.createdAt},
+            #{item.updatedBy}, #{item.updatedAt}, #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateById">
+        UPDATE repository_duplicate_doc_mapping
+        <set>
+            <if test="repositoryDuplicateId != null">repository_duplicate_id = #{repositoryDuplicateId},</if>
+            <if test="repositoryDocId != null">repository_doc_id = #{repositoryDocId},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </set>
+        WHERE id = #{id} AND del_flg = 0
+    </update>
+
+    <update id="deleteById">
+        UPDATE repository_duplicate_doc_mapping SET del_flg = 1 WHERE id = #{id}
+    </update>
+
+    <update id="updateByDuplicateId">
+        UPDATE repository_duplicate_doc_mapping
+        <set>
+            <if test="repositoryDocId != null">repository_doc_id = #{repositoryDocId},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+            <if test="delFlg != null">del_flg = #{delFlg},</if>
+        </set>
+        WHERE repository_duplicate_id = #{repositoryDuplicateId}
+    </update>
+
+</mapper>
