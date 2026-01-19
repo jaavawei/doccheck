@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.question.mapper.QuestionLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iwei.question.entity.QuestionLog">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="question" property="question" jdbcType="LONGVARCHAR" />
+        <result column="answer" property="answer" jdbcType="LONGNVARCHAR" />
+        <result column="app_id" property="appId" jdbcType="VARCHAR" />
+        <result column="file_id" property="fileId" jdbcType="VARCHAR" />
+        <result column="file_name" property="fileName" jdbcType="VARCHAR" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+        <result column="updated_by" property="updatedBy" jdbcType="VARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="created_by" property="createdBy" jdbcType="VARCHAR" />
+        <result column="session_id" property="sessionId" jdbcType="VARCHAR" />
+        <result column="uuid" property="uuid" jdbcType="VARCHAR" />
+        <result column="project_info" property="projectInfo" jdbcType="VARCHAR" />
+        <result column="qa_action" property="qaAction" jdbcType="VARCHAR" />
+        <result column="del_flg" property="delFlg" jdbcType="INTEGER" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, question, answer, app_id, file_id, file_name, updated_at, updated_by, created_at, created_by, session_id, uuid, project_info, qa_action, del_flg
+    </sql>
+    
+    <!-- 插入记录 -->
+    <insert id="insert" parameterType="com.iwei.question.entity.QuestionLog">
+        INSERT INTO question_log (
+            question, 
+            answer, 
+            app_id, 
+            file_id, 
+            file_name, 
+            updated_at, 
+            updated_by, 
+            created_at, 
+            created_by, 
+            session_id, 
+            uuid, 
+            project_info, 
+            qa_action,
+            del_flg
+        ) VALUES (
+            #{question},
+            #{answer},
+            #{appId},
+            #{fileId},
+            #{fileName},
+            #{updatedAt},
+            #{updatedBy},
+            #{createdAt},
+            #{createdBy},
+            #{sessionId},
+            #{uuid},
+            #{projectInfo},
+            #{qaAction},
+            #{delFlg}
+        )
+    </insert>
+    
+    <!-- 根据ID查询记录 -->
+    <select id="queryById" resultMap="BaseResultMap">
+        SELECT 
+            <include refid="Base_Column_List" />
+        FROM question_log
+        WHERE id = #{id}
+        AND del_flg = 0
+    </select>
+    
+    <!-- 查询所有记录 -->
+    <select id="queryAll" resultMap="BaseResultMap">
+        SELECT 
+            <include refid="Base_Column_List" />
+        FROM question_log
+        WHERE del_flg = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 根据条件查询记录 -->
+    <select id="queryByCondition" resultType="com.iwei.question.entity.QuestionLog">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM question_log
+        WHERE del_flg = 0
+        <if test="questionLog.question != null">
+            AND question LIKE CONCAT('%', #{questionLog.question}, '%')
+        </if>
+        <if test="questionLog.answer != null">
+            AND questionLog.answer LIKE CONCAT('%', #{questionLog.answer}, '%')
+        </if>
+        <if test="questionLog.appId != null">
+            AND app_id = #{questionLog.appId}
+        </if>
+        <if test="questionLog.fileId != null">
+            AND file_id = #{questionLog.fileId}
+        </if>
+        <if test="questionLog.fileName != null">
+            AND file_name LIKE CONCAT('%', #{questionLog.fileName}, '%')
+        </if>
+        <if test="questionLog.sessionId != null">
+            AND session_id = #{questionLog.sessionId}
+        </if>
+        <if test="questionLog.uuid != null">
+            AND uuid = #{questionLog.uuid}
+        </if>
+        <if test="questionLog.projectInfo != null">
+            AND project_info LIKE CONCAT('%', #{questionLog.projectInfo}, '%')
+        </if>
+        <if test="questionLog.qaAction != null">
+            AND qa_action LIKE CONCAT('%', #{questionLog.qaAction}, '%')
+        </if>
+        ORDER BY created_at DESC LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="queryHistoryList" resultType="com.iwei.question.entity.QuestionLog">
+        SELECT
+            a.question, a.uuid
+        FROM question_log a
+        INNER JOIN (
+            SELECT uuid, MAX(created_at) AS max_created_at
+            FROM question_log
+            WHERE del_flg = 0
+            GROUP BY uuid
+        ) t ON a.uuid = t.uuid AND a.created_at = t.max_created_at
+        ORDER BY a.created_at DESC LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countHistoryList" resultType="java.lang.Integer">
+        SELECT COUNT(distinct uuid) FROM question_log WHERE del_flg = 0
+    </select>
+
+    <select id="countByCondition" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM question_log
+        WHERE del_flg = 0
+        <if test="question != null">
+            AND question LIKE CONCAT('%', #{question}, '%')
+        </if>
+        <if test="answer != null">
+            AND answer LIKE CONCAT('%', #{answer}, '%')
+        </if>
+        <if test="appId != null">
+            AND app_id = #{appId}
+        </if>
+        <if test="fileId != null">
+            AND file_id = #{fileId}
+        </if>
+        <if test="fileName != null">
+            AND file_name LIKE CONCAT('%', #{fileName}, '%')
+        </if>
+        <if test="sessionId != null">
+            AND session_id = #{sessionId}
+        </if>
+        <if test="uuid != null">
+            AND uuid = #{uuid}
+        </if>
+        <if test="projectInfo != null">
+            AND project_info LIKE CONCAT('%', #{projectInfo}, '%')
+        </if>
+        <if test="qaAction != null">
+            AND qa_action LIKE CONCAT('%', #{qaAction}, '%')
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.question.mapper.QuestionFileMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.iwei.question.entity.QuestionFile">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="file_name" property="fileName" jdbcType="VARCHAR" />
+        <result column="url" property="url" jdbcType="VARCHAR" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+        <result column="updated_by" property="updatedBy" jdbcType="VARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="created_by" property="createdBy" jdbcType="VARCHAR" />
+        <result column="del_flg" property="delFlg" jdbcType="INTEGER" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, file_name, url, updated_at, updated_by, created_at, created_by, del_flg
+    </sql>
+    
+    <!-- 插入记录 -->
+    <insert id="insert" parameterType="com.iwei.question.entity.QuestionFile">
+        INSERT INTO question_file (
+            file_name,
+            url,
+            updated_at,
+            updated_by,
+            created_at,
+            created_by,
+            del_flg
+        ) VALUES (
+            #{fileName},
+            #{url},
+            #{updatedAt},
+            #{updatedBy},
+            #{createdAt},
+            #{createdBy},
+            #{delFlg}
+        )
+    </insert>
+    <insert id="batchInsert">
+        INSERT INTO question_file (
+            file_name,
+            url,
+            updated_at,
+            updated_by,
+            created_at,
+            created_by,
+            del_flg
+        ) VALUES
+        <foreach item="item" index="index" collection="list" separator=",">
+            (
+                #{item.fileName},
+                #{item.url},
+                #{item.updatedAt},
+                #{item.updatedBy},
+                #{item.createdAt},
+                #{item.createdBy},
+                #{item.delFlg}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 根据ID查询记录 -->
+    <select id="queryById" resultMap="BaseResultMap">
+        SELECT 
+            <include refid="Base_Column_List" />
+        FROM question_file
+        WHERE id = #{id}
+        AND del_flg = 0
+    </select>
+    
+    <!-- 查询所有记录 -->
+    <select id="queryAll" resultMap="BaseResultMap">
+        SELECT 
+            <include refid="Base_Column_List" />
+        FROM question_file
+        WHERE del_flg = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 根据条件查询记录 -->
+    <select id="queryByCondition" resultType="com.iwei.question.entity.QuestionFile">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM question_file
+        WHERE del_flg = 0
+        <if test="fileName != null">
+            AND file_name LIKE CONCAT('%', #{fileName}, '%')
+        </if>
+        <if test="url != null">
+            AND url LIKE CONCAT('%', #{url}, '%')
+        </if>
+        <if test="updatedAt != null">
+            AND updated_at >= #{updatedAt}
+        </if>
+    </select>
+
+
+</mapper>

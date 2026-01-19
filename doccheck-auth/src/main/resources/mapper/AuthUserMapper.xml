@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iwei.auth.mapper.AuthUserMapper">
+    <!-- 结果集映射：数据库字段与实体类属性对应 -->
+    <resultMap id="BaseResultMap" type="com.iwei.auth.entity.AuthUser">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_name" property="username" jdbcType="VARCHAR"/>
+        <result column="nick_name" property="nickname" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="TINYINT"/>
+        <result column="avatar" property="avatar" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="introduce" property="introduce" jdbcType="VARCHAR"/>
+        <result column="ext_json" property="extJson" jdbcType="LONGVARCHAR"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="BIGINT"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_by" property="updatedBy" jdbcType="BIGINT"/>
+        <result column="del_flg" property="delFlg" jdbcType="TINYINT"/>
+    </resultMap>
+    <!-- 基础字段列表 -->
+    <sql id="Base_Column_List">
+        id, user_name, nick_name, email, phone, password, sex, avatar, status,
+        introduce, ext_json, created_at, created_by, updated_at, updated_by, del_flg
+    </sql>
+
+
+    <!-- 新增用户 -->
+    <insert id="insert">
+        insert into auth_user (
+            user_name, nick_name, email, phone, password, sex, avatar,
+            status, introduce, ext_json, created_at, created_by,
+            updated_at, updated_by, del_flg
+        ) values (
+                     #{username},
+                     #{nickname},
+                     #{email},
+                     #{phone},
+                     #{password},
+                     #{sex},
+                     #{avatar},
+                     #{status},
+                     #{introduce},
+                     #{extJson},
+                     #{createdAt},
+                     #{createdBy},
+                     #{updatedAt},
+                     #{updatedBy},
+                     #{delFlg}
+                 )
+    </insert>
+
+    <!-- 根据用户名查询（用于登录） -->
+    <select id="queryByCondition" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from auth_user
+        where del_flg = 0
+        <if test="username != null and username != ''">
+            and user_name = #{username}
+        </if>
+        <if test="nickname != null and nickname != ''">
+            and nick_name = #{nickname}
+        </if>
+        <if test="email != null and email != ''">
+            and email = #{email}
+        </if>
+        <if test="phone != null and phone != ''">
+            and phone = #{phone}
+        </if>
+        <if test="sex != null">
+            and sex = #{sex}
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="introduce != null and introduce != ''">
+            and introduce like CONCAT('%', #{introduce}, '%')
+        </if>
+        <if test="extJson != null and extJson != ''">
+            and ext_json like CONCAT('%', #{extJson}, '%')
+        </if>
+    </select>
+</mapper>
